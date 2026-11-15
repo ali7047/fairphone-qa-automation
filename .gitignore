@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+
+# Secrets and local environment
+.env
+.env.*
+
+# Test output (published as CI artifacts, never committed)
+test-results/
+reports/
+playwright-report/
+
+# Local-only documents and notes
+*.docx
+*.pptx
+private-notes/
+deliverables/
+tools/
+.playwright-mcp/
+
+# Editor and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Personal Claude Code settings
+.claude/settings.local.json

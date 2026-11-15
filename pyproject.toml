@@ -1,0 +1,13 @@
+[project]
+name = "fairphone-qa-automation"
+version = "0.1.0"
+description = "End-to-end and monitoring checks for the Fairphone webshop"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pytest>=9.2.0",
+    "pytest-html>=4.2.0",
+    "pytest-playwright>=0.10.0",
+    "pytest-rerunfailures>=16.7",
+    "pytest-xdist>=3.8.0",
+]
