@@ -1,17 +1,16 @@
-"""Shared test setup (fixtures) for every test in this folder and below.
+"""Shared setup (fixtures) for all tests.
 
-What every browser test gets automatically:
-- the region and base URL from config/settings.py (REGION, BASE_URL),
-- a fresh browser context per test (own cookies, own empty cart),
-- the browser language and time zone of the region,
-- the cookie dialog declined automatically whenever it appears.
-
-Options:
-    --region eu|us      storefront to test (default: REGION env var, else eu)
-    --base-url URL      address to test (default: BASE_URL env var, else the region's live shop)
+Every browser test gets:
+- a fresh browser context: own cookies, own empty cart;
+- the shop, language and address from config/settings.py;
+- the shop switched to the chosen language before the test starts;
+- the cookie dialog declined automatically.
 """
 
 from __future__ import annotations
+
+import html
+import inspect
 
 import pytest
 from playwright.sync_api import Page
@@ -21,11 +20,12 @@ from pages.base_page import CookieDialog
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
-    parser.addoption(
-        "--region",
-        action="store",
+    group = parser.getgroup("fairphone", "Fairphone shop under test")
+    group.addoption("--region", default=None, help="Shop: eu or us (env REGION, default eu).")
+    group.addoption(
+        "--language",
         default=None,
-        help="Storefront to test: eu or us (default: REGION env var, else eu).",
+        help="Shop language: en or nl on eu, en on us (env SHOP_LANGUAGE, default en).",
     )
 
 
@@ -33,6 +33,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
 def settings(pytestconfig: pytest.Config) -> Settings:
     return load_settings(
         region_code=pytestconfig.getoption("--region"),
+        language_code=pytestconfig.getoption("--language"),
         base_url=pytestconfig.getoption("--base-url"),
     )
 
@@ -44,13 +45,13 @@ def region(settings: Settings) -> Region:
 
 @pytest.fixture(scope="session")
 def base_url(settings: Settings) -> str:
-    """Overrides pytest-playwright's base_url so page.goto("/cart") uses our settings."""
+    """Replaces pytest-playwright's base_url, so page.goto("/shop/cart") uses our settings."""
     return settings.base_url
 
 
 @pytest.fixture(scope="session")
 def browser_context_args(browser_context_args: dict, settings: Settings) -> dict:
-    """Extend pytest-playwright's context options with the region's locale and time zone."""
+    """Adds the region's browser language and time zone to pytest-playwright's options."""
     return {
         **browser_context_args,
         "base_url": settings.base_url,
@@ -62,14 +63,31 @@ def browser_context_args(browser_context_args: dict, settings: Settings) -> dict
 
 @pytest.fixture
 def page(page: Page, settings: Settings) -> Page:
-    """pytest-playwright's page, plus: cookie dialog handled and shop pinned to English.
-
-    The EU shop picks its language from the visitor's location and remembers it
-    in a cookie. Opening the English path once pins the session to English, so
-    selectors that use visible English text stay valid on every runner.
-    """
+    """pytest-playwright's page, plus the cookie handler and the chosen shop language."""
     page.set_default_timeout(15_000)
     CookieDialog(page).handle_automatically()
-    if settings.region.language_path:
-        page.goto(settings.region.language_path + "/")
+    if settings.language_path:
+        # Why this is needed: knowledge/site-observations.md, "Language selection".
+        # The server sets the language cookie in its first answer, so there is
+        # no need to wait for the whole page (images, scripts) to load.
+        page.goto(settings.language_path + "/", wait_until="commit")
     return page
+
+
+# --- HTML report: show each test's Data / Steps / Expected next to its result ---
+
+
+def pytest_html_results_table_header(cells: list) -> None:
+    cells.insert(2, "<th>Description</th>")
+
+
+def pytest_html_results_table_row(report: pytest.TestReport, cells: list) -> None:
+    description = getattr(report, "description", "")
+    cells.insert(2, f'<td style="white-space: pre-line">{html.escape(description)}</td>')
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
+    outcome = yield
+    report = outcome.get_result()
+    report.description = inspect.cleandoc(getattr(item.function, "__doc__", None) or "")
