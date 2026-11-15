@@ -14,7 +14,7 @@ Rules that tests must respect. *Observed <date>* = seen on the live site. *Assum
 | EU (euro countries) | EUR | "€599", "€ 599.00", "€27.95" (*Observed 2026-11-15*) |
 | UK | GBP | *Assumption:* "£…" |
 | Switzerland | CHF | *Assumption:* "CHF …" |
-| US | USD | *Assumption:* "$1,299.00" |
+| US | USD | "$649.99", "$27.99" (*Observed 2026-11-15*) |
 
 Tests compare prices as numbers (`Decimal`), never as text, so "€599" and "€ 599.00" count as equal.
 

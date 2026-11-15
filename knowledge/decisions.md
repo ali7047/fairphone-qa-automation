@@ -4,6 +4,9 @@ Short decision records. Newest first. Format: decision — reason — date.
 
 | Date | Decision | Reason |
 |---|---|---|
+| 2026-11-15 | **Region profiles (EU, US)** in `config/settings.py`; pick with `--region` / `REGION`, override the address with `--base-url` / `BASE_URL` | Same tests for both storefronts and for acceptance copies; region rules (currency, tax) stay with the region, not the address |
+| 2026-11-15 | **Pin English by opening `/en/` once per test** on the EU shop | The shop picks its language by location, not browser language; a pinned language keeps text-based selectors valid on every runner |
+| 2026-11-15 | **Keep trace, screenshot and video only for failed tests** (`test-results/`) | Enough to debug a failure without opening the site again; passing runs stay fast and small |
 | 2026-11-15 | Python environment managed with **uv** (`pyproject.toml` + `uv.lock`) | Exact versions on every machine and in CI; one command (`uv sync`) to set up |
 | 2026-11-15 | **Playwright for both GUI and API checks** | A price shown on screen is compared with the value the page received from Odoo; a mismatch shows whether the screen or the server is wrong |
 | 2026-11-15 | **Blocking tests must pass 100%**; flaky tests go to quarantine | A gate that tolerates failures can't separate real bugs from noise; quarantine keeps the gate strict without blocking on known flakiness |

@@ -4,8 +4,8 @@ What the shop is, who changes it, and where it runs. Facts are marked *Observed 
 
 ## The shop
 - **Platform:** Odoo 16 e-commerce.
-- **Storefronts:** www.fairphone.com (EU, several languages and currencies) and a separate US site on the same code base. *Assumption:* the US site URL and its differences (currency USD, sales tax added at checkout) still need to be confirmed.
-- **Languages:** at least English and Dutch. *Observed 2026-11-15:* `/` redirected to `/nl` from a Dutch browser; English pages have no language prefix (`/the-fairphone-gen-6`).
+- **Storefronts:** www.fairphone.com (EU, several languages and currencies) and a separate US site on the same code base, `https://us.fairphone.com` (*Observed 2026-11-15:* English only, prices in USD, e.g. "$649.99"). *Assumption:* US sales tax is added at checkout.
+- **Languages:** EU shop in English, German, French and Dutch (`hreflang` links; *Observed 2026-11-15*). The language is picked from the visitor's location, not the browser language: `/` redirected to `/nl` from the Netherlands. English pages have no language prefix (`/the-fairphone-gen-6`).
 - **Products:** smartphones (Fairphone Gen. 6 and Gen. 6+, Android and /e/OS), audio (Fairbuds 2, Fairbuds XL), accessories, spare parts, gift cards.
 
 ## Teams and process

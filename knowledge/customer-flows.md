@@ -3,7 +3,7 @@
 The journeys the suite covers, step by step. Screen names are the visible English text. *Observed 2026-11-15* unless marked otherwise.
 
 ## 1. Home page and main navigation
-1. Open `/` (English: no language prefix).
+1. Open `/en/` once (redirects to `/` in English and pins the language; see [site-observations.md](site-observations.md)). The US shop needs no prefix.
 2. Cookie dialog "Cookies Please!" appears → "Decline Optional".
 3. Header menu: **Shop**, **About**, **Fairphone Stories**, **Keep Club**, **Business**, **Support**; cart icon shows the item count ("0").
 4. The Shop menu opens groups: **Smartphones**, **Audio**, **Accessories**, **Spare parts**.
