@@ -1,10 +1,10 @@
-"""Where the tests run: region profiles and settings.
+"""Where the tests run: which shop (region), which language, which address.
 
-A *region* is one storefront (EU or US). Each region knows its address, language,
-currency and whether prices include tax. Settings pick a region and allow the
-address to be overridden, so the same tests can run against an acceptance copy:
+    uv run python -m pytest -m smoke --region us
+    uv run python -m pytest -m smoke --language nl
+    uv run python -m pytest -m smoke --base-url https://<acceptance-url>
 
-    REGION=us BASE_URL=https://<acceptance-url> uv run python -m pytest -m smoke
+Order for each value: command-line option > environment variable > default.
 """
 
 from __future__ import annotations
@@ -12,15 +12,23 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
+from config.languages import LANGUAGES, Language
+
+ENV_REGION = "REGION"
+ENV_LANGUAGE = "SHOP_LANGUAGE"  # not LANGUAGE: Linux already uses that name for its own messages
+ENV_BASE_URL = "BASE_URL"
+
 
 @dataclass(frozen=True)
 class Region:
+    """One storefront and the business rules that come with it."""
+
     code: str
     base_url: str
-    language_path: str
-    """Path prefix that pins the shop to English. Odoo redirects `/en/...` on the EU
-    shop to the unprefixed English page and remembers the choice in a cookie."""
+    languages: dict[str, str]
+    """Languages tested on this shop, mapped to the path that switches the shop to it."""
     locale: str
+    """Browser language. Stays English whatever the shop language, so the cookie dialog is predictable."""
     timezone: str
     currency: str
     currency_symbol: str
@@ -31,22 +39,22 @@ REGIONS: dict[str, Region] = {
     "eu": Region(
         code="eu",
         base_url="https://www.fairphone.com",
-        language_path="/en",
+        languages={"en": "/en", "nl": "/nl"},
         locale="en-GB",
         timezone="Europe/Amsterdam",
         currency="EUR",
         currency_symbol="€",
-        prices_include_tax=True,  # Observed 2026-11-15: NL cart total includes 21% VAT
+        prices_include_tax=True,
     ),
     "us": Region(
         code="us",
         base_url="https://us.fairphone.com",
-        language_path="",  # English only
+        languages={"en": ""},  # English only: no switch needed
         locale="en-US",
         timezone="America/New_York",
         currency="USD",
         currency_symbol="$",
-        prices_include_tax=False,  # Assumption: sales tax is added at checkout
+        prices_include_tax=False,
     ),
 }
 
@@ -54,18 +62,34 @@ REGIONS: dict[str, Region] = {
 @dataclass(frozen=True)
 class Settings:
     region: Region
+    language: Language
     base_url: str
 
+    @property
+    def language_path(self) -> str:
+        """Path that switches the shop to the chosen language ("/nl"), or "" if none is needed."""
+        return self.region.languages[self.language.code]
 
-def load_settings(region_code: str | None = None, base_url: str | None = None) -> Settings:
-    """Build settings from arguments, then environment variables, then region defaults.
 
-    Order for each value: explicit argument > environment variable > default.
-    REGION defaults to "eu"; BASE_URL defaults to the region's live address.
-    """
-    code = (region_code or os.getenv("REGION") or "eu").strip().lower()
+def load_settings(
+    region_code: str | None = None,
+    language_code: str | None = None,
+    base_url: str | None = None,
+) -> Settings:
+    code = _pick(region_code, ENV_REGION, "eu").lower()
     if code not in REGIONS:
         raise ValueError(f"Unknown region {code!r}. Choose one of: {', '.join(REGIONS)}")
     region = REGIONS[code]
-    url = (base_url or os.getenv("BASE_URL") or region.base_url).strip().rstrip("/")
-    return Settings(region=region, base_url=url)
+
+    lang = _pick(language_code, ENV_LANGUAGE, "en").lower()
+    if lang not in region.languages:
+        raise ValueError(
+            f"The {region.code} shop is tested in: {', '.join(region.languages)}. Got {lang!r}."
+        )
+
+    url = _pick(base_url, ENV_BASE_URL, region.base_url).rstrip("/")
+    return Settings(region=region, language=LANGUAGES[lang], base_url=url)
+
+
+def _pick(argument: str | None, env_var: str, default: str) -> str:
+    return (argument or os.getenv(env_var) or default).strip()
