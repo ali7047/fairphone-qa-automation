@@ -1,35 +1,35 @@
 # fairphone-qa-automation
 
-End-to-end and monitoring checks for the Fairphone webshop ([www.fairphone.com](https://www.fairphone.com) and [us.fairphone.com](https://us.fairphone.com)), written in Python with Playwright and pytest, and run in GitHub Actions.
+End-to-end and monitoring checks for the Fairphone webshop ([www.fairphone.com](https://www.fairphone.com) and [us.fairphone.com](https://us.fairphone.com)), in Python with Playwright and pytest, run in GitHub Actions.
 
-> Work in progress: the customer-journey tests and the GitHub Actions workflows are being added.
+> Work in progress: the customer journeys and the GitHub Actions workflows are being added.
 
 ## Run locally
 
-Needs [uv](https://docs.astral.sh/uv/) (it installs the right Python by itself).
+Needs [uv](https://docs.astral.sh/uv/); it installs the right Python by itself.
 
 ```bash
-uv sync                                          # install exact versions from uv.lock into .venv
+uv sync                                          # install exact versions from uv.lock
 uv run python -m playwright install chromium     # download the test browser (once)
 
-uv run python -m pytest tests/unit               # helper tests: no browser, under a second
-uv run python -m pytest -m smoke                 # browser tests against the live EU shop
-uv run python -m pytest -m smoke --region us     # same tests against the US shop
-uv run python -m pytest -m smoke --headed        # watch the browser while it runs
+uv run python -m pytest tests/unit               # config and helper tests: no browser, under a second
+uv run python -m pytest -m smoke                 # journeys on the live EU shop, in English
+uv run python -m pytest -m smoke --language nl   # same journeys in Dutch
+uv run python -m pytest -m smoke --region us     # same journeys on the US shop
+uv run python -m pytest -m smoke --headed        # watch the browser
 ```
 
-### Where the tests run
+### Choosing what to test
 
-| Option | Environment variable | Default | Example |
+| Option | Environment variable | Default | Values |
 |---|---|---|---|
-| `--region` | `REGION` | `eu` | `--region us` |
-| `--base-url` | `BASE_URL` | the region's live shop | `--base-url https://<acceptance-url>` |
-
-The region decides currency, language and tax rules; the base URL decides which copy of the shop is tested. Pointing the suite at an acceptance environment is one option: `--base-url`.
+| `--region` | `REGION` | `eu` | `eu`, `us` |
+| `--language` | `SHOP_LANGUAGE` | `en` | `en`, `nl` on `eu`; `en` on `us` |
+| `--base-url` | `BASE_URL` | the region's live shop | any address, e.g. an acceptance copy |
 
 ### When a test fails
 
-A screenshot, a video and a Playwright trace are saved in `test-results/<test-name>/`. Open the trace to replay every step, click and network call:
+A screenshot, a video and a Playwright trace are saved in `test-results/<test-name>/`. The trace replays every step, click and network call:
 
 ```bash
 uv run python -m playwright show-trace test-results/<test-name>/trace.zip
@@ -38,11 +38,10 @@ uv run python -m playwright show-trace test-results/<test-name>/trace.zip
 ## Project layout
 
 ```
-config/settings.py   region profiles (EU, US) and how the address under test is chosen
-pages/               page objects: where to click, kept out of the tests
-utils/money.py       turns "€ 599.00", "$649.99", "1.234,56 €" into comparable numbers
-tests/conftest.py    shared setup: fresh browser per test, English pinned, cookie dialog declined
-tests/unit/          tests for the helpers
-tests/smoke/         critical customer journeys
-knowledge/           what the suite is built on: shop context, journeys, rules, decisions
+config/       which shop, language and address; visible texts per language
+pages/        page objects: where to click, kept out of the tests
+utils/        helpers, e.g. reading "€ 599.00" or "$649.99" as a number
+tests/unit/   tests for config and helpers (no browser)
+tests/smoke/  customer journeys on the real shop
+knowledge/    how the shop works and how tests are written here
 ```

@@ -1,46 +1,37 @@
 # Site observations
 
-Things seen on the live site that affect testing. Newest first. Each entry: date, what, impact on tests.
+How the live shop behaves, and what that means for the tests. Seen with Chromium from the Netherlands.
 
-## 2026-11-15 — second check: language pinning and the US shop (Chromium, headless)
+## Language selection
+- The EU shop picks its language from the visitor's **location**, not the browser language: from the Netherlands, `/` redirects to `/nl` whatever the browser is set to.
+- Opening `/en/` (or `/nl/`) once switches the session: the server sets the cookie `frontend_lang` and later pages stay in that language. Setting the cookie by hand before the first visit does not work.
+- The US shop is English only and needs no switch.
+- **For tests:** the shared setup opens the language path once before each test (`--language`, default English).
 
-**Language is chosen by location, not by browser language**
-- With browser languages en-US, en-GB and nl-NL alike, `/` redirected to `/nl` (Dutch) from a Dutch IP. So the browser `locale` setting alone does not give English pages.
-- Opening `/en/` once redirects to `/` in English and sets the cookie `frontend_lang=en_US`; after that, `/` stays English for the session.
-- Setting the `frontend_lang` cookie by hand before the first visit did **not** work (the site replaced it with `nl_NL`).
-- Impact: the shared test setup opens `/en/` first on the EU shop. Every test then runs in English, whatever the runner's location.
+## Cookie dialog
+- Dialog "Cookies Please!" on the first visit, same on EU and US, with **Accept All**, **Decline Optional**, **Customize Settings**. It covers buttons such as **Add to cart** until it is answered.
+- **For tests:** declined automatically by `CookieDialog` in `pages/base_page.py`.
 
-**US shop**
-- Address: `https://us.fairphone.com` (listed in the EU pages as `hreflang="en-us"`). Separate host, same Odoo look.
-- English only (`lang="en-US"`), prices in dollars: "$649.99", "$27.99". Home heading: "Switch to fair. Switch to better."
-- Same cookie dialog as the EU shop ("Cookies Please!", same three buttons).
+## Header cart icon
+- `<a href="/shop/cart">0</a>`: its only accessible name is the item count. Screen readers announce "0, link" with no word "cart" — an accessibility issue.
+- **For tests:** found by its link target (`href` ends with `/shop/cart`), which also works for `/nl/shop/cart`.
 
-**Home page layout on the EU shop**
-- The hero heading is covered by other elements (hero buttons, sticky header), so a pointer action on it times out. Not a bug; tests must not hover or click the heading.
+## "Go to checkout" click intercepted
+- A plain click on **Go to checkout** in the cart times out: the wrapper element around the button receives the click.
+- **For tests:** to investigate in the checkout journey — the wrapper may be the intended target, or this is a keyboard/assistive-technology bug.
 
-## 2026-11-15 — first read-only walkthrough (Chromium, Windows, Dutch location)
+## EU home page layout
+- The hero heading is covered by the hero buttons and the sticky header, so pointer actions on it fail. Not a bug; tests don't hover or click it.
 
-**Language redirect**
-- `/` redirected to `/nl`. Requesting `/en/shop` redirected to `/`; `/en/the-fairphone-gen-6` redirected to `/the-fairphone-gen-6`.
-- Impact: see the language pinning entry above.
+## Console messages
+- Home page: no errors. Messages come from third-party tools: experiments (Convert), analytics (Clarity, Google Tag Manager), consent (DataGrail), an accessibility widget (EqualWeb, warns about an iframe sandbox) and a chat widget.
+- Odoo logs "Tour Manager is ready." (Odoo's own UI test framework is loaded).
+- **For tests:** the detection job fails only on Fairphone's own errors; third-party messages are reported.
 
-**Cookie dialog**
-- Dialog titled "Cookies Please!" (DataGrail) with buttons "Accept All", "Decline Optional", "Customize Settings" and a language selector.
-- Impact: one handler clicks "Decline Optional" whenever the dialog appears.
+## Bot protection
+- No blocking from a local machine. GitHub Actions runners (US data centres): to be seen in the first CI run.
 
-**"Go to checkout" click intercepted**
-- A plain click on the button "Go to checkout" in the cart timed out: the wrapper `div.f_button_wrapper` received the click instead of the button.
-- Impact: to investigate before writing the checkout journey — the wrapper may be the real click target (a design choice), or this may be a bug for keyboard and assistive-technology users.
-
-**Console**
-- Home page: no errors. Messages come from third-party tools: Convert (experiments), Microsoft Clarity, Google Tag Manager, DataGrail, EqualWeb (accessibility widget: "iframe … can escape its sandboxing" warning), a chat widget iframe.
-- Odoo logs "Tour Manager is ready." (Odoo's built-in UI test framework is loaded).
-- Impact: the detection job separates first-party errors (fail) from third-party noise (report only).
-
-**Bot protection**
-- Not blocked from a local machine. Behaviour from GitHub Actions runners (US data centres) still unknown.
-
-**Possible content issues (to recheck before citing)**
-- Dutch home page shows English text: hero "Introducing the Fairbuds 2. Your sound. Made better." and "Read more" next to "Lees meer".
-- Footer headings with odd capitalisation: "ProductEN", "FairphonE", "sCHRIJF ME IN".
+## Possible content issues (recheck before citing)
+- Dutch home page shows English text ("Introducing the Fairbuds 2…", "Read more" next to "Lees meer").
+- Footer headings with odd capitals: "ProductEN", "FairphonE", "sCHRIJF ME IN".
 - Configurator page title says "Configure your The Fairphone Gen. 6+" while configuring the Gen. 6.
