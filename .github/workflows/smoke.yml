@@ -146,9 +146,15 @@ jobs:
     if: ${{ always() && (needs.smoke.result == 'success' || needs.smoke.result == 'failure') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # The environment's URL is shown as a clickable link on this job's box in the
+    # run graph and on the pull request ("View deployment"): one click to the report.
+    environment:
+      name: allure-report
+      url: ${{ steps.publish.outputs.url }}
     permissions:
-      contents: write   # push the report to the gh-pages branch
-      pages: write      # start a GitHub Pages build
+      contents: write     # push the report to the gh-pages branch
+      pages: write        # start a GitHub Pages build
+      deployments: write  # show the report link on the job box and the pull request
     env:
       WORKFLOW_NAME: ${{ github.workflow }}
       RUN_NUMBER: ${{ github.run_number }}

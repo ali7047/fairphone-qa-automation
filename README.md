@@ -39,7 +39,10 @@ Unit ─────┘                            ├──> Allure report
 | Known issues | Checks for known shop gaps; red until the shop is fixed | No |
 | Allure report | One report from both browser jobs, published as a web page; link and results table on the run page | No |
 
-**Opening the report:** open the workflow run; at the top of its page is **📊 Open the Allure report**, which opens that run's report in the browser.
+**Opening the report** — one click from any of these:
+- the **Allure report** box in the run graph: the link under the job name;
+- the pull request: **View deployment** next to *allure-report*;
+- the top of the run's summary page: **📊 Open the Allure report**.
 Each run keeps its own address (`https://ali7047.github.io/fairphone-qa-automation/smoke/<run number>/`), the newest is always at
 [`/smoke/latest/`](https://ali7047.github.io/fairphone-qa-automation/smoke/latest/), and
 [the index page](https://ali7047.github.io/fairphone-qa-automation/) lists every published run. The last 20 runs are kept.
