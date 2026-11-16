@@ -27,9 +27,21 @@ uv run python -m pytest -m smoke --headed        # watch the browser
 | `--language` | `SHOP_LANGUAGE` | `en` | `en`, `nl` on `eu`; `en` on `us` |
 | `--base-url` | `BASE_URL` | the region's live shop | any address, e.g. an acceptance copy |
 
+### Test report (Allure)
+
+Every run writes results to `allure-results/`. To open them as a report (needs Node.js and Java):
+
+```bash
+npx allure-commandline@2 serve allure-results
+```
+
+Each test shows its Data / Steps / Expected description, every step with a screenshot,
+the test data, the shop's server answers, and "expected vs actual" for each check.
+
 ### When a test fails
 
-A screenshot, a video and a Playwright trace are saved in `test-results/<test-name>/`. The trace replays every step, click and network call:
+The report also gets the screenshot, video and Playwright trace of the failed test
+(saved in `test-results/<test-name>/` too). The trace replays every step, click and network call:
 
 ```bash
 uv run python -m playwright show-trace test-results/<test-name>/trace.zip
@@ -40,8 +52,9 @@ uv run python -m playwright show-trace test-results/<test-name>/trace.zip
 ```
 config/       which shop, language and address; visible texts per language
 pages/        page objects: where to click, kept out of the tests
-utils/        helpers, e.g. reading "€ 599.00" or "$649.99" as a number
-tests/unit/   tests for config and helpers (no browser)
-tests/smoke/  customer journeys on the real shop
+test_data/    what the journeys buy and where they go, per shop and language
+utils/        helpers: reading "€ 599.00" or "$649.99" as a number; report evidence
+tests/unit/   tests for config, test data and helpers (no browser)
+tests/smoke/  the 4 customer journeys on the real shop
 knowledge/    how the shop works and how tests are written here
 ```

@@ -56,7 +56,15 @@ def test_dutch_on_eu_shop_switches_with_nl_path():
     settings = load_settings(language_code="nl")
     assert settings.language.code == "nl"
     assert settings.language_path == "/nl"
-    assert settings.language.text("colour_group") == "Kleur"
+    assert settings.url_prefix == "/nl"
+    assert settings.language.text("cart_heading") == "Winkelwagen"
+
+
+def test_english_pages_have_no_prefix():
+    """English is the shop's default: /shop/cart, not /en/shop/cart (which would redirect every time)."""
+    settings = load_settings(language_code="en")
+    assert settings.language_path == "/en"
+    assert settings.url_prefix == ""
 
 
 def test_language_from_environment(monkeypatch):

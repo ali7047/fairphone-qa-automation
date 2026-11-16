@@ -19,7 +19,7 @@ End-to-end tests treat the shop as a black box (a customer's view), test **any**
 | pytest-playwright | Browser fixtures and `--base-url` |
 | pytest-xdist | Parallel runs, capped at 2 workers |
 | pytest-rerunfailures | One retry in CI to detect flaky tests |
-| pytest-html | Self-contained HTML report |
+| allure-pytest | Report with every step, screenshot, data and server answer; trace and video for failed tests |
 
 ## Structure
 ```

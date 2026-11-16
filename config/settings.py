@@ -66,6 +66,11 @@ class Settings:
     base_url: str
 
     @property
+    def url_prefix(self) -> str:
+        """Prefix for page addresses in the chosen language: "" for English (the shop's default), "/nl" for Dutch."""
+        return "" if self.language.code == "en" else self.language_path
+
+    @property
     def language_path(self) -> str:
         """Path that switches the shop to the chosen language ("/nl"), or "" if none is needed."""
         return self.region.languages[self.language.code]
