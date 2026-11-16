@@ -9,10 +9,14 @@ How the live shop behaves, and what that means for the tests. Seen with Chromium
 - **For tests:** the shared setup opens the language path once before each test (`--language`, default English).
 
 ## Pop-ups a test meets
+The cookie dialog and the "local site" prompt depend on **where the visitor is**, not on the shop or language.
+A run from the Netherlands and a run on GitHub's US machines see different buttons.
+
 | Pop-up | Where | Answer used by tests | Why |
 |---|---|---|---|
-| Cookie dialog "Cookies Please!" | First visit, EU and US | **Decline Optional** | Privacy-friendly; fewer third-party scripts |
-| "Visiting from the Netherlands? … switch to the local site?" | US shop, visitor outside the US | **Stay on us.fairphone.com** | The test chose the US shop on purpose |
+| Cookie dialog "Cookies Please!" | First visit, EU and US | **Decline Optional** (visitor in the EU) or **Accept Essentials Only** (visitor in the US) | Privacy-friendly; fewer third-party scripts |
+| "Visiting from the Netherlands? … switch to the local site?" | US shop, visitor from the EU | **Stay on us.fairphone.com** | The test chose the US shop on purpose |
+| "Visiting from the US?" | EU shop, visitor from the US (e.g. GitHub Actions runners) | **Stay on fairphone.com** | Same |
 | "Choose your free … Protective Case" | Cart, right after adding a phone (EU and US) | **Continue without adding** | Keep the cart to what the test added |
 | "Choose your free … Screen Protector" | Right after the case offer | **Continue without adding** | Same |
 | "Accessories for …" with **Go to cart** / **Checkout** | Right after the screen-protector offer | **Go to cart** | Back to the cart without adding |
@@ -65,7 +69,9 @@ How the live shop behaves, and what that means for the tests. Seen with Chromium
 - The hero heading is covered by the hero buttons and the sticky header, so pointer actions on it fail. Not a bug; tests don't hover or click it.
 
 ## Bot protection
-- No blocking from a local machine. GitHub Actions runners (US data centres): to be seen in the first CI run.
+- No blocking from a local machine, and none from GitHub Actions runners (US data centres): the first CI run passed all 4 journeys.
+- What CI did see is a different **location**: a US cookie dialog ("Accept Essentials Only") and a "Visiting from the US?" prompt on the EU shop. That made one run fail until both were handled (see "Pop-ups").
+- Faking a US location locally (answering the shop's `/shopping-context/geoip` request with "US") does **not** bring up these pop-ups: the shop decides on the server, from the visitor's IP address. So pop-ups for other locations can only be seen from those locations, e.g. in CI.
 
 ## Possible content issues (recheck before citing)
 - Dutch home page shows English text ("Introducing the Fairbuds 2…", "Read more" next to "Lees meer").

@@ -1,7 +1,11 @@
 """Pop-ups that cover the page, and how tests answer them.
 
-Cookie dialog and the US "local site" prompt can appear at any moment, so
-Playwright's locator handler answers them before every action or check.
+The cookie dialog and the "visiting from another country?" prompt can appear at
+any moment, so Playwright's locator handler answers them before every action or check.
+
+Both depend on WHERE the visitor is (not on the shop language): a run from the
+Netherlands and a run on GitHub's US machines see different buttons. Each class
+lists every variant seen; see knowledge/site-observations.md, "Pop-ups".
 
 The cart offers are a chain (case, then screen protector, then accessories)
 that reuses the same buttons, so they are answered as one step right after a
@@ -10,6 +14,7 @@ phone is added: CartOffers.skip_all().
 
 from __future__ import annotations
 
+import re
 from contextlib import suppress
 
 from playwright.sync_api import Error as PlaywrightError
@@ -19,27 +24,39 @@ from config.settings import Settings
 
 
 class CookieDialog:
-    """Consent dialog on the first visit (EU and US). Always English: the browser stays English."""
+    """Consent dialog on the first visit, EU and US shop. Always English: the browser stays English.
+
+    The privacy-friendly button depends on the visitor's location:
+    - from the EU:  "Decline Optional"
+    - from the US:  "Accept Essentials Only"
+    Both mean the same: only the cookies the shop needs to work.
+    """
+
+    PRIVACY_FRIENDLY = re.compile(r"^(Decline Optional|Accept Essentials Only)$")
 
     def __init__(self, page: Page) -> None:
         self.dialog = page.get_by_role("dialog").filter(has=page.get_by_role("heading", name="Cookies Please!"))
-        self.decline_button = self.dialog.get_by_role("button", name="Decline Optional")
+        self.decline_button = self.dialog.get_by_role("button", name=self.PRIVACY_FRIENDLY)
 
     def handle_automatically(self, page: Page) -> None:
         page.add_locator_handler(self.dialog, lambda _: self.decline_button.click())
 
 
 class LocalSitePrompt:
-    """US shop only: "Visiting from <country>? Switch to the local site?" for visitors outside the US.
+    """ "Visiting from <country>? Switch to the local site?" for visitors from another region.
 
-    The test chose the US shop on purpose, so it stays.
+    Seen on the US shop for visitors from the Netherlands ("Stay on us.fairphone.com"),
+    and on the EU shop for visitors from the US ("Stay on fairphone.com") — which is
+    what GitHub's US machines get. The test chose its shop on purpose, so it stays.
     """
 
+    STAY = re.compile(r"^Stay on (us\.)?fairphone\.com$", re.IGNORECASE)
+
     def __init__(self, page: Page) -> None:
-        self.stay_button = page.get_by_role("button", name="Stay on us.fairphone.com")
+        self.stay_button = page.get_by_role("button", name=self.STAY)
 
     def handle_automatically(self, page: Page) -> None:
-        page.add_locator_handler(self.stay_button, lambda _: self.stay_button.click())
+        page.add_locator_handler(self.stay_button, lambda _: self.stay_button.first.click())
 
 
 class CartOffers:
