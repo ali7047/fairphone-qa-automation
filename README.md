@@ -37,9 +37,15 @@ Unit ─────┘                            ├──> Allure report
 | Unit tests | Config, test data and helpers, no browser | Yes |
 | Smoke journeys | The 4 customer journeys, 2 workers, 1 retry. Starts only after Lint **and** Unit pass | Yes |
 | Known issues | Checks for known shop gaps; red until the shop is fixed | No |
-| Allure report | One report from both browser jobs, plus a results table on the run page | No |
+| Allure report | One report from both browser jobs, published as a web page; link and results table on the run page | No |
 
-The run page lists every test with its result. Download the **allure-report** artifact for the full report, and **playwright-artifacts-*** for traces and videos of failed tests.
+**Opening the report:** open the workflow run; at the top of its page is **📊 Open the Allure report**, which opens that run's report in the browser.
+Each run keeps its own address (`https://ali7047.github.io/fairphone-qa-automation/smoke/<run number>/`), the newest is always at
+[`/smoke/latest/`](https://ali7047.github.io/fairphone-qa-automation/smoke/latest/), and
+[the index page](https://ali7047.github.io/fairphone-qa-automation/) lists every published run. The last 20 runs are kept.
+The report is also attached to the run as the **allure-report** artifact (kept 14 days), and **playwright-artifacts-*** holds traces and videos of failed tests.
+
+How it is published: the report job pushes the report to the `gh-pages` branch (one fresh commit each time, so old reports don't pile up in git history) and GitHub Pages serves that branch as a website. The job turns Pages on by itself on its first run.
 
 Before pushing, run the same checks locally:
 

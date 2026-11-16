@@ -14,6 +14,7 @@ Why the suite is built the way it is. One line per decision; git history shows w
 | **Known shop gaps get a test that stays red, in a separate non-blocking job** (`known_issue` marker) | The gap stays visible in every report until it is fixed, while the smoke gate stays trustworthy: red there always means something new broke |
 | **Allure report** with steps, screenshots, data and expected-vs-actual per check | A reader can follow and judge a test without opening the code; failures come with trace and video |
 | **Typing into checkout only with form posts blocked** | The live shop must never receive a form, even by an accidental Enter key |
+| **Allure report published to GitHub Pages, one address per run**, link on the run page | One click from the run to the report; earlier runs' links keep working; no download or local tools needed |
 | **Lint and unit tests first, in parallel; browser tests only after both pass** | Cheap checks fail in about a minute; no browser traffic on the live shop when the code itself is broken |
 | **Blocking tests must pass 100%**; flaky tests go to quarantine | A gate that tolerates failures can't separate real bugs from noise |
 | **Trace, screenshot and video kept only for failed tests** | Enough to debug without re-running; passing runs stay fast and small |
