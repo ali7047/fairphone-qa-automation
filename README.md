@@ -24,14 +24,30 @@ uv run python -m pytest -m known_issue           # checks that fail today becaus
 
 `Smoke tests` runs on every pull request and on demand (Actions → Smoke tests → Run workflow, with shop, language, address and browser to choose).
 
+```
+Lint ─────┐
+          ├──> Smoke journeys (gate) ──┐
+Unit ─────┘                            ├──> Allure report
+          └──> Known issues (may fail) ┘
+```
+
 | Job | What it does | Blocks a PR? |
 |---|---|---|
+| Lint | `ruff check` (likely bugs, unused code, import order) and `ruff format --check` | Yes |
 | Unit tests | Config, test data and helpers, no browser | Yes |
-| Smoke journeys | The 4 customer journeys, 2 workers, 1 retry | Yes |
+| Smoke journeys | The 4 customer journeys, 2 workers, 1 retry. Starts only after Lint **and** Unit pass | Yes |
 | Known issues | Checks for known shop gaps; red until the shop is fixed | No |
-| Allure report | One report from both jobs, plus a results table on the run page | No |
+| Allure report | One report from both browser jobs, plus a results table on the run page | No |
 
 The run page lists every test with its result. Download the **allure-report** artifact for the full report, and **playwright-artifacts-*** for traces and videos of failed tests.
+
+Before pushing, run the same checks locally:
+
+```bash
+uv run python -m ruff check . && uv run python -m ruff format --check .   # lint
+uv run python -m ruff format .                                             # fix formatting
+uv run python -m pytest tests/unit                                         # unit tests
+```
 
 ### Choosing what to test
 

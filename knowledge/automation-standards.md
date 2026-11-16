@@ -20,6 +20,7 @@ End-to-end tests treat the shop as a black box (a customer's view), test **any**
 | pytest-xdist | Parallel runs, capped at 2 workers |
 | pytest-rerunfailures | One retry in CI to detect flaky tests |
 | allure-pytest | Report with every step, screenshot, data and server answer; trace and video for failed tests |
+| ruff | Lint (likely bugs, unused code, import order) and formatting, one tool; rules in `pyproject.toml` |
 
 ## Structure
 ```
@@ -70,6 +71,7 @@ uv run python -m playwright codegen https://www.fairphone.com/en/
 3. Write the test in `tests/<suite>/test_<journey>.py` with a marker (`@pytest.mark.smoke`) and the Data/Steps/Expected docstring.
 4. Compare money with `utils.money.parse_price()`, never as text.
 5. Run it 3 times locally, in English and Dutch, before opening a PR.
+6. Run lint and formatting: `uv run python -m ruff check . && uv run python -m ruff format --check .` (the pipeline runs the same).
 
 ## Naming
 - Files: `test_<journey>.py`. Tests: `test_<what_the_customer_does>`.
