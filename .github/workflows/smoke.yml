@@ -1,0 +1,160 @@
+name: Smoke tests
+
+# The pre-deploy gate candidate: the 4 customer journeys on the real shop.
+# - Runs on every pull request and on demand (Actions tab -> Smoke tests -> Run workflow).
+# - The "smoke" job is the gate: it must be green.
+# - The "known-issues" job runs checks that fail today because of a known shop gap;
+#   it is allowed to be red and never blocks a pull request.
+# - Both jobs upload their raw results; the "report" job turns them into one
+#   Allure report (every step, screenshot and data; trace and video for failures).
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: "Shop"
+        type: choice
+        options: [eu, us]
+        default: eu
+      language:
+        description: "Language (eu: en or nl; us: en)"
+        type: choice
+        options: [en, nl]
+        default: en
+      base_url:
+        description: "Address to test (empty = the region's live shop; set an acceptance address here)"
+        type: string
+        default: ""
+      browser:
+        description: "Browser"
+        type: choice
+        options: [chromium, firefox, webkit]
+        default: chromium
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGION: ${{ inputs.region || 'eu' }}
+  SHOP_LANGUAGE: ${{ inputs.language || 'en' }}
+  BASE_URL: ${{ inputs.base_url }}
+  BROWSER: ${{ inputs.browser || 'chromium' }}
+
+jobs:
+  unit:
+    name: Unit tests (config, test data, helpers)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run python -m pytest tests/unit -p no:cacheprovider
+
+  smoke:
+    name: Smoke journeys (gate)
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-playwright
+        with:
+          browser: ${{ env.BROWSER }}
+      - name: Run smoke journeys
+        # At most 2 parallel workers on the live shop. One retry: a test that
+        # passes on retry is reported as flaky, not hidden.
+        run: >
+          uv run python -m pytest -m smoke
+          --browser "$BROWSER" -n 2 --reruns 1
+          --junitxml=test-results/junit.xml
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-smoke
+          path: allure-results
+          retention-days: 14
+      - name: Upload traces and videos of failed tests
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts-smoke
+          path: test-results
+          retention-days: 14
+
+  known-issues:
+    name: Known issues (allowed to fail)
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-playwright
+        with:
+          browser: ${{ env.BROWSER }}
+      - name: Run known-issue checks
+        run: uv run python -m pytest -m known_issue --browser "$BROWSER"
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-known-issues
+          path: allure-results
+          retention-days: 14
+      - name: Upload traces and videos of failed tests
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts-known-issues
+          path: test-results
+          retention-days: 14
+
+  report:
+    name: Allure report
+    needs: [smoke, known-issues]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: allure-results-*
+          path: allure-results
+          merge-multiple: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Build the report
+        run: npx --yes allure-commandline@2 generate allure-results --clean -o allure-report
+      - name: Upload the report
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+          retention-days: 14
+      - name: Summary on the run page
+        if: always()
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import glob, json
+          rows = []
+          for f in sorted(glob.glob("allure-results/*-result.json")):
+              r = json.load(open(f, encoding="utf-8"))
+              suite = next((l["value"] for l in r.get("labels", []) if l["name"] == "feature"), "")
+              message = (r.get("statusDetails") or {}).get("message", "").splitlines()
+              rows.append((suite, r["name"], r["status"], message[0][:140] if message else ""))
+          icon = {"passed": "✅", "failed": "❌", "broken": "⚠️", "skipped": "⏭️"}
+          print("## Test results\n")
+          print("| Suite | Test | Result | Why it failed |")
+          print("|---|---|---|---|")
+          for suite, name, status, why in rows:
+              print(f"| {suite} | `{name}` | {icon.get(status, status)} {status} | {why} |")
+          print("\nFull report with steps, screenshots, data and traces: download the **allure-report** artifact below, unzip, and open `index.html` with `npx allure-commandline@2 open allure-report`.")
+          EOF

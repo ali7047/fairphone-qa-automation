@@ -44,7 +44,16 @@ How the live shop behaves, and what that means for the tests. Seen with Chromium
 ## "Go to checkout"
 - A plain click on **Go to checkout** is intercepted while a cart offer is still open behind it; once the offers are answered it works. It opens a side panel **"How would you like to complete your order?"** with a **Checkout as guest** link (`/shop/checkout?express=1`) and a login form.
 - **Checkout as guest** opens `/shop/address`: heading **Checkout**, section **Address** with First name, Last name, e-mail address, Phone number, Street address, Postal code, City, and a **NEXT STEP** button.
-- **For tests:** stop on this page. Never type into it or press NEXT STEP.
+- **For tests:** stop on this page. Never press NEXT STEP. Typing is allowed only with form posts blocked (`CheckoutPage.block_form_submits()`).
+
+## Address step accepts an incomplete street
+- "Street address + house number" has no checks in the browser (no `required`, no pattern). Typing **"37"** (a house number without a street) and leaving the field shows **no warning**; the field is not marked invalid.
+- Whether the server rejects it on **NEXT STEP** is unknown: pressing it would send the form to the live shop. To check on acceptance.
+- **Impact:** a customer can continue to payment with an address that cannot be delivered → manual correction by customer service (Medium).
+- **For tests:** `tests/known_issues/test_address_validation.py` expects a warning and is **red until the shop adds one**. It runs in a separate, non-blocking job.
+
+## iDEAL
+- iDEAL is listed among the payment methods in the cart (logo "iDEAL", with Wero). It can only be **chosen** on the payment step, which comes after submitting the address form — so not on the live shop. A test that clicks iDEAL belongs on acceptance, with the payment provider in test mode.
 
 ## Console messages
 - Home page: no errors. Messages come from third-party tools: experiments (Convert), analytics (Clarity, Google Tag Manager, Exponea), consent (DataGrail), an accessibility widget (EqualWeb) and a chat widget.

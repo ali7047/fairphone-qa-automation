@@ -2,7 +2,7 @@
 
 End-to-end and monitoring checks for the Fairphone webshop ([www.fairphone.com](https://www.fairphone.com) and [us.fairphone.com](https://us.fairphone.com)), in Python with Playwright and pytest, run in GitHub Actions.
 
-> Work in progress: the customer journeys and the GitHub Actions workflows are being added.
+> Work in progress: the weekly detection job is being added. The US shop journeys are not stable yet.
 
 ## Run locally
 
@@ -17,7 +17,21 @@ uv run python -m pytest -m smoke                 # journeys on the live EU shop,
 uv run python -m pytest -m smoke --language nl   # same journeys in Dutch
 uv run python -m pytest -m smoke --region us     # same journeys on the US shop
 uv run python -m pytest -m smoke --headed        # watch the browser
+uv run python -m pytest -m known_issue           # checks that fail today because of a known shop gap
 ```
+
+## GitHub Actions
+
+`Smoke tests` runs on every pull request and on demand (Actions → Smoke tests → Run workflow, with shop, language, address and browser to choose).
+
+| Job | What it does | Blocks a PR? |
+|---|---|---|
+| Unit tests | Config, test data and helpers, no browser | Yes |
+| Smoke journeys | The 4 customer journeys, 2 workers, 1 retry | Yes |
+| Known issues | Checks for known shop gaps; red until the shop is fixed | No |
+| Allure report | One report from both jobs, plus a results table on the run page | No |
+
+The run page lists every test with its result. Download the **allure-report** artifact for the full report, and **playwright-artifacts-*** for traces and videos of failed tests.
 
 ### Choosing what to test
 

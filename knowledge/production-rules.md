@@ -14,7 +14,7 @@ The suite runs against a live shop with real customers. These rules are not opti
 - At most **2 parallel workers** against production.
 - Scheduled jobs run at their agreed frequency (detection: weekly). No extra cron jobs "to be safe".
 - Use a fresh browser context per test, so tests never share a cart or session.
-- Stop the checkout journey at the address step.
+- Stop the checkout journey at the address step. If a test must type into the form, call `CheckoutPage.block_form_submits()` first: it stops every form post to checkout, payment and sign-up before it leaves the browser, and `type_into()` refuses to type without it.
 - Only listen to API requests the page itself makes; never call order, payment or form endpoints directly.
 
 ## When something goes wrong
