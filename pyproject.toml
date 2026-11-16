@@ -11,3 +11,22 @@ dependencies = [
     "pytest-rerunfailures>=16.7",
     "pytest-xdist>=3.8.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+# Browser tests keep a trace, screenshot and video only when they fail.
+# Unit tests don't open a browser, so these options cost them nothing.
+addopts = [
+    "--strict-markers",
+    "-ra",
+    "--output=test-results",
+    "--tracing=retain-on-failure",
+    "--screenshot=only-on-failure",
+    "--video=retain-on-failure",
+]
+markers = [
+    "smoke: critical customer journeys; candidate pre-deploy gate",
+    "detection: weekly site-health check against a capped sample of public pages",
+    "quarantine(reason): known-flaky test; runs in a separate, non-blocking job. Give a ticket id as reason",
+]
