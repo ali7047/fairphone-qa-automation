@@ -10,15 +10,19 @@ from __future__ import annotations
 import re
 from decimal import Decimal
 
+# Characters used between groups of three digits: space, non-breaking space,
+# narrow non-breaking space (both appear in shop output) and apostrophe (Swiss style).
+_GROUP_SPACE = " \u00a0\u202f'"
+
 # One well-formed amount. Grouped forms are tried before plain ones, so
 # "1,234.56" is read as one number and not as "1" followed by noise.
 _AMOUNT = re.compile(
     r"(?<![\d.,'])"
     r"(?:"
-    r"\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?"                    # 1,234.56  (English)
-    r"|\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?"                   # 1.234,56  (Dutch/German)
-    "|\\d{1,3}(?:[ \u00a0\u202f']\\d{3})+(?:[.,]\\d{1,2})?"  # 1 234,56 / 1'234.50 (space, non-breaking spaces, apostrophe)
-    r"|\d+(?:[.,]\d{1,2})?"                                # 599 / 599.00 / 599,00
+    r"\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?"  # 1,234.56  (English)
+    r"|\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?"  # 1.234,56  (Dutch/German)
+    rf"|\d{{1,3}}(?:[{_GROUP_SPACE}]\d{{3}})+(?:[.,]\d{{1,2}})?"  # 1 234,56 / 1'234.50
+    r"|\d+(?:[.,]\d{1,2})?"  # 599 / 599.00 / 599,00
     r")"
     r"(?!\d|[.,]\d)"
 )

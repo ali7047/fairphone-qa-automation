@@ -10,10 +10,11 @@ test in the report without opening the code:
 from __future__ import annotations
 
 import json
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import asdict, is_dataclass
 from decimal import Decimal
-from typing import Any, Iterator
+from typing import Any
 
 import allure
 from playwright.sync_api import Page

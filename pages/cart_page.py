@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal
 
-from playwright.sync_api import Locator, expect
+from playwright.sync_api import Locator
 
 from pages.base_page import BasePage
 from utils.money import parse_price
@@ -48,9 +48,12 @@ class CartPage(BasePage):
     @property
     def summary(self) -> Locator:
         """The "Your order" box with subtotal, tax and total; holds the Go to checkout button."""
-        return self.page.locator("main div").filter(
-            has=self.page.get_by_role("button", name=self.text("cart_go_to_checkout"))
-        ).filter(has_text=self.settings.region.currency_symbol).last
+        return (
+            self.page.locator("main div")
+            .filter(has=self.page.get_by_role("button", name=self.text("cart_go_to_checkout")))
+            .filter(has_text=self.settings.region.currency_symbol)
+            .last
+        )
 
     def total(self) -> Decimal:
         """Cart total: the last amount in the order summary ("Total: € 599.00")."""

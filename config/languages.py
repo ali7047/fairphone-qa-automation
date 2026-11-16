@@ -19,8 +19,7 @@ class Language:
         """Visible text for `key`, e.g. text("cart_heading") -> "Winkelwagen" in Dutch."""
         if key not in self.texts:
             raise LookupError(
-                f"No {self.code!r} text for {key!r} yet: check it on the live shop "
-                f"and add it to config/languages.py"
+                f"No {self.code!r} text for {key!r} yet: check it on the live shop and add it to config/languages.py"
             )
         return self.texts[key]
 

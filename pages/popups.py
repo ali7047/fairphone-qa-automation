@@ -10,6 +10,8 @@ phone is added: CartOffers.skip_all().
 
 from __future__ import annotations
 
+from contextlib import suppress
+
 from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import Page
 
@@ -20,9 +22,7 @@ class CookieDialog:
     """Consent dialog on the first visit (EU and US). Always English: the browser stays English."""
 
     def __init__(self, page: Page) -> None:
-        self.dialog = page.get_by_role("dialog").filter(
-            has=page.get_by_role("heading", name="Cookies Please!")
-        )
+        self.dialog = page.get_by_role("dialog").filter(has=page.get_by_role("heading", name="Cookies Please!"))
         self.decline_button = self.dialog.get_by_role("button", name="Decline Optional")
 
     def handle_automatically(self, page: Page) -> None:
@@ -82,10 +82,9 @@ class CartOffers:
             button = self.go_to_cart.first if self.go_to_cart.count() else self.skip.first
             handle = button.element_handle()
             handle.click()
-            try:
+            # "Go to cart" reloads the page: the button no longer exists, which also means it is gone.
+            with suppress(PlaywrightError):
                 handle.wait_for_element_state("hidden")
-            except PlaywrightError:
-                pass  # "Go to cart" reloads the page: the button no longer exists, which also means it is gone
             answered += 1
             timeout = 3_000  # the next offer follows quickly
         raise AssertionError(f"Expected at most {self.MAX_OFFERS} offers in the cart, more kept appearing")

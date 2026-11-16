@@ -88,9 +88,7 @@ def load_settings(
 
     lang = _pick(language_code, ENV_LANGUAGE, "en").lower()
     if lang not in region.languages:
-        raise ValueError(
-            f"The {region.code} shop is tested in: {', '.join(region.languages)}. Got {lang!r}."
-        )
+        raise ValueError(f"The {region.code} shop is tested in: {', '.join(region.languages)}. Got {lang!r}.")
 
     url = _pick(base_url, ENV_BASE_URL, region.base_url).rstrip("/")
     return Settings(region=region, language=LANGUAGES[lang], base_url=url)

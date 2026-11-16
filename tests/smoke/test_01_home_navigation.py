@@ -16,9 +16,7 @@ from utils.evidence import attach_check, attach_data, attach_screenshot, step
 @allure.feature("Smoke journeys")
 @allure.story("1. Home page and navigation")
 @pytest.mark.smoke
-def test_home_page_loads_and_shop_menu_opens_a_product_page(
-    page: Page, settings: Settings, menu_target: MenuTarget
-):
+def test_home_page_loads_and_shop_menu_opens_a_product_page(page: Page, settings: Settings, menu_target: MenuTarget):
     """
     Data:     shop, language and address from the settings (default: EU shop, English);
               the Shop-menu link to follow from test_data/products.py (EU: "Smartphones").
@@ -35,7 +33,8 @@ def test_home_page_loads_and_shop_menu_opens_a_product_page(
         home = BasePage(page, settings).open("/")
         status = home.response.status if home.response else None
         attach_check("Home page status (expected below 400)", "< 400", status)
-        assert status is not None and status < 400, f"Expected home page status below 400, actual {status}"
+        assert status is not None, "Expected an answer from the home page, got none"
+        assert status < 400, f"Expected home page status below 400, actual {status}"
         attach_screenshot(page, "Home page")
 
     with step("2. Check language, cookie dialog, menu, cart icon and prices"):

@@ -53,10 +53,7 @@ PHONES: dict[tuple[str, str], ProductChoice] = {
 
 
 def phone_for(region: str, language: str) -> ProductChoice:
-    try:
-        return PHONES[(region, language)]
-    except KeyError:
-        raise LookupError(f"No test phone for shop {region!r} in {language!r}: add one to test_data/products.py") from None
+    return _lookup(PHONES, region, language, "test phone")
 
 
 @dataclass(frozen=True)
@@ -79,7 +76,12 @@ MENU_TARGETS: dict[tuple[str, str], MenuTarget] = {
 
 
 def menu_target_for(region: str, language: str) -> MenuTarget:
+    return _lookup(MENU_TARGETS, region, language, "menu target")
+
+
+def _lookup(table: dict, region: str, language: str, what: str):
+    """Find the entry for a shop and language, or say exactly what is missing and where to add it."""
     try:
-        return MENU_TARGETS[(region, language)]
+        return table[(region, language)]
     except KeyError:
-        raise LookupError(f"No menu target for shop {region!r} in {language!r}: add one to test_data/products.py") from None
+        raise LookupError(f"No {what} for shop {region!r} in {language!r}: add one to test_data/products.py") from None

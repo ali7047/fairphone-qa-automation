@@ -11,10 +11,12 @@ Every browser test gets:
 
 from __future__ import annotations
 
+from contextlib import suppress
 from pathlib import Path
 
 import allure
 import pytest
+from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import Page
 
 from config.settings import Region, Settings, load_settings
@@ -97,10 +99,9 @@ def page(page: Page, settings: Settings, request: pytest.FixtureRequest):
     yield page
 
     # What the customer saw when the test ended, pass or fail.
-    try:
+    # A page that is already closed must not hide the test's own result.
+    with suppress(PlaywrightError):
         attach_screenshot(page, "Screen at the end of the test", full_page=True)
-    except Exception:  # noqa: BLE001 - a closed page must not hide the test result
-        pass
 
 
 @pytest.hookimpl(hookwrapper=True)

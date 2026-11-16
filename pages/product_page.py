@@ -23,11 +23,9 @@ class ProductPage(BasePage):
         has extra copies in a sticky bar (section aria-label="Page sections", same
         in every language) that only slides in after scrolling; those are left out.
         """
-        return self.page.locator(
-            "main section:not([aria-label='Page sections']) a[href*='/configure/']"
-        ).first
+        return self.page.locator("main section:not([aria-label='Page sections']) a[href*='/configure/']").first
 
-    def go_to_configurator(self) -> "ConfiguratorPage":
+    def go_to_configurator(self) -> ConfiguratorPage:
         self.buy_link.click()
         self.page.wait_for_url("**/configure/**")
         return ConfiguratorPage(self.page, self.settings)

@@ -42,7 +42,8 @@ def test_address_step_warns_when_street_name_is_missing(page: Page, settings: Se
         configurator.add_to_cart()
         cart = CartPage(page, settings)
         if settings.region.code == "eu":
-            expect(page.locator("main").get_by_role("img", name="iDEAL"), "Expected iDEAL among the payment methods").to_be_visible()
+            ideal = page.locator("main").get_by_role("img", name="iDEAL")
+            expect(ideal, "Expected iDEAL among the payment methods").to_be_visible()
         attach_screenshot(page, "Cart with payment methods")
 
     with step("2. Go to checkout as guest"):
