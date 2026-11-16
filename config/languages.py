@@ -51,6 +51,7 @@ LANGUAGES: dict[str, Language] = {
             "address_heading": "Address",
             "first_name": "First name",
             "last_name": "Last name",
+            "street": "Street address + house number",
         },
     ),
     "nl": Language(
@@ -78,6 +79,7 @@ LANGUAGES: dict[str, Language] = {
             "address_heading": "Adres",
             "first_name": "Voornaam",
             "last_name": "Achternaam",
+            "street": "Adres + huisnummer",
         },
     ),
 }
