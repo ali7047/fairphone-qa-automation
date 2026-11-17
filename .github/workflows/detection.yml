@@ -1,0 +1,121 @@
+name: Detection (weekly)
+
+# Weekly bug detection on the live shop: open a capped sample of public pages
+# (max 30, from the sitemap, respecting robots.txt) and report HTTP errors (400+)
+# and JavaScript errors.
+#
+#   Lint ─────┐
+#             ├──> Detection (≤30 pages) ──> Allure report (link on its box)
+#   Unit ─────┘
+#
+# - Runs every Monday at 06:00 UTC, and on demand (Actions → Detection (weekly) →
+#   Run workflow) with: shop, number of pages, specific pages, sample seed.
+# - Fails only for the shop's own problems a customer notices (broken page,
+#   shop script crash, missing shop script/style, shop server error).
+#   Third-party errors and minor issues are listed in the report only.
+#   Rules: utils/site_health.py; why: knowledge/decisions.md.
+# - Same week = same pages (sample seeded by the ISO week), so a re-run checks
+#   exactly the same pages; next week checks other pages.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # Mondays 06:00 UTC: low traffic, before the week's releases
+  workflow_dispatch:
+    inputs:
+      region:
+        description: "Shop"
+        type: choice
+        options: [eu, us]
+        default: eu
+      max_pages:
+        description: "Number of pages to check (max 30)"
+        type: number
+        default: 30
+      pages:
+        description: "Check these pages instead of a sample (comma separated, e.g. /stories,/nl/returns). Use after publishing content."
+        type: string
+        default: ""
+      sample_seed:
+        description: "Which sample (empty = this week's). Change it to check other pages."
+        type: string
+        default: ""
+
+concurrency:
+  group: detection
+  cancel-in-progress: false   # never stop a weekly run halfway
+
+env:
+  REGION: ${{ inputs.region || 'eu' }}
+  SHOP_LANGUAGE: en
+  MAX_PAGES: ${{ inputs.max_pages || 30 }}
+  PAGES: ${{ inputs.pages }}
+  SAMPLE_SEED: ${{ inputs.sample_seed }}
+  BROWSER: chromium
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run python -m ruff check . --output-format=github
+      - run: uv run python -m ruff format --check --diff .
+
+  unit:
+    name: Unit tests (incl. detection rules)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run python -m pytest tests/unit -p no:cacheprovider
+
+  detection:
+    name: Detection (≤30 pages)
+    needs: [lint, unit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-playwright
+        with:
+          browser: ${{ env.BROWSER }}
+      - name: Check the pages
+        # 2 workers at most on the live shop. No retries: a page that fails once is
+        # worth seeing, and a re-run of the same week checks the same pages.
+        run: uv run python -m pytest -m detection --browser "$BROWSER" -n 2
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-detection
+          path: allure-results
+          retention-days: 30
+      - name: Upload traces of failed pages
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts-detection
+          path: test-results
+          retention-days: 30
+
+  report:
+    name: Allure report
+    needs: detection
+    if: ${{ always() && (needs.detection.result == 'success' || needs.detection.result == 'failure') }}
+    uses: ./.github/workflows/allure-report.yml
+    with:
+      key: detection
+      results-pattern: allure-results-detection
+    permissions:
+      contents: write
+      pages: write
+      deployments: write

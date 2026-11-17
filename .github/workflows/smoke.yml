@@ -1,0 +1,179 @@
+name: Smoke tests
+
+# The pre-deploy gate candidate: the 4 customer journeys on the real shop.
+#
+#   Lint ─────┐
+#             ├──> Smoke journeys (gate) ──┐
+#   Unit ─────┘                            ├──> Allure report (link on its box)
+#             └──> Known issues ───────────┘
+#
+# When it runs:
+# - on every pull request;
+# - by hand: Actions → Smoke tests → Run workflow, choosing shop, language,
+#   address (e.g. an acceptance copy), browser, and whether to run known issues.
+#
+# - Lint and Unit tests run in parallel and need no browser (about a minute).
+# - Smoke and Known issues start only when BOTH have passed: no point opening
+#   browsers on the live shop when the code itself is broken.
+# - "Smoke journeys" is the gate: it must be green.
+# - "Known issues" runs checks that fail today because of a known shop gap.
+#   The job stays green (with a warning); the failure shows in the Allure report.
+# - Both browser jobs upload raw results; "Allure report" turns them into one
+#   report (every step, screenshot and data; trace and video for failures).
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      region:
+        description: "Shop"
+        type: choice
+        options: [eu, us]
+        default: eu
+      language:
+        description: "Language (eu: en or nl; us: en)"
+        type: choice
+        options: [en, nl]
+        default: en
+      base_url:
+        description: "Address to test (empty = the region's live shop; set an acceptance address here)"
+        type: string
+        default: ""
+      browser:
+        description: "Browser"
+        type: choice
+        options: [chromium, firefox, webkit]
+        default: chromium
+      known_issues:
+        description: "Also run the known-issue checks"
+        type: boolean
+        default: true
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGION: ${{ inputs.region || 'eu' }}
+  SHOP_LANGUAGE: ${{ inputs.language || 'en' }}
+  BASE_URL: ${{ inputs.base_url }}
+  BROWSER: ${{ inputs.browser || 'chromium' }}
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - name: Lint (likely bugs, unused code, import order)
+        run: uv run python -m ruff check . --output-format=github
+      - name: Formatting
+        run: uv run python -m ruff format --check --diff .
+
+  unit:
+    name: Unit tests (config, test data, helpers)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run python -m pytest tests/unit -p no:cacheprovider
+
+  smoke:
+    name: Smoke journeys (gate)
+    needs: [lint, unit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-playwright
+        with:
+          browser: ${{ env.BROWSER }}
+      - name: Run smoke journeys
+        # At most 2 parallel workers on the live shop. One retry: a test that
+        # passes on retry is reported as flaky, not hidden.
+        run: >
+          uv run python -m pytest -m smoke
+          --browser "$BROWSER" -n 2 --reruns 1
+          --junitxml=test-results/junit.xml
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-smoke
+          path: allure-results
+          retention-days: 14
+      - name: Upload traces and videos of failed tests
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts-smoke
+          path: test-results
+          retention-days: 14
+
+  known-issues:
+    name: Known issues (reported, never fail the run)
+    needs: [lint, unit]
+    # Pull requests always run them; a manual run can switch them off.
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.known_issues }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-playwright
+        with:
+          browser: ${{ env.BROWSER }}
+      - name: Run known-issue checks
+        id: run
+        # These checks fail today on purpose (a shop gap that is not fixed yet).
+        # The job stays green so the run's colour only reflects new problems;
+        # the failure is visible in the Allure report, the results table, and
+        # as a warning on this job. A broken run (setup/tooling error) still fails.
+        run: |
+          set +e
+          uv run python -m pytest -m known_issue --browser "$BROWSER"
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          if [ "$code" -eq 1 ]; then
+            echo "::warning title=Known issues::Known shop gaps still present (expected). See the Allure report."
+            exit 0
+          fi
+          exit "$code"
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-known-issues
+          path: allure-results
+          retention-days: 14
+      - name: Upload traces and videos of failed tests
+        if: always() && steps.run.outputs.exit_code == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts-known-issues
+          path: test-results
+          retention-days: 14
+
+  report:
+    name: Allure report
+    needs: [smoke, known-issues]
+    # Build the report whenever the browser jobs ran (pass or fail),
+    # but not when Lint or Unit failed and the browser jobs were skipped.
+    if: ${{ always() && (needs.smoke.result == 'success' || needs.smoke.result == 'failure') }}
+    uses: ./.github/workflows/allure-report.yml
+    with:
+      key: smoke
+      results-pattern: allure-results-*
+      known-issues-note: true
+    permissions:
+      contents: write
+      pages: write
+      deployments: write

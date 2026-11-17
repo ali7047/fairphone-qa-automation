@@ -1,4 +1,4 @@
-"""Base page object and the cookie dialog."""
+"""Base page object: shared by every page."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from config.settings import Settings
 
 
 class BasePage:
-    """Shared by all page objects: the browser page, the settings and the header.
+    """Holds the browser page, the settings and the header.
 
     Page objects hold locators and actions. Tests hold the expectations.
     """
@@ -30,14 +30,18 @@ class BasePage:
         """Go to `path`, or to this page's own `path`, on the address under test.
 
         Keeps the server's answer in `self.response` and returns the page object,
-        so a test can write: home = HomePage(page, settings).open()
+        so a test can write: cart = CartPage(page, settings).open()
         """
-        self.response = self.page.goto(path if path is not None else self.path)
+        self.response = self.page.goto(self.settings.url_prefix + (path if path is not None else self.path))
         return self
+
+    @property
+    def header(self) -> Locator:
+        return self.page.locator("header")
 
     def header_link(self, key: str) -> Locator:
         """A header menu link by its visible name in the language under test."""
-        return self.page.locator("header").get_by_role("link", name=self.text(key), exact=True)
+        return self.header.get_by_role("link", name=self.text(key), exact=True)
 
     @property
     def cart_link(self) -> Locator:
@@ -47,22 +51,4 @@ class BasePage:
         number (see knowledge/site-observations.md). `$=` means "ends with",
         so it also matches the Dutch /nl/shop/cart.
         """
-        return self.page.locator('header a[href$="/shop/cart"]')
-
-
-class CookieDialog:
-    """Consent dialog shown on the first visit, on the EU and US shop.
-
-    The test setup keeps the browser English, so these texts don't change with --language.
-    """
-
-    def __init__(self, page: Page) -> None:
-        self.page = page
-        self.dialog = page.get_by_role("dialog").filter(
-            has=page.get_by_role("heading", name="Cookies Please!")
-        )
-        self.decline_button = self.dialog.get_by_role("button", name="Decline Optional")
-
-    def handle_automatically(self) -> None:
-        """Before every action or check: if the dialog is visible, decline it and wait until it is gone."""
-        self.page.add_locator_handler(self.dialog, lambda _: self.decline_button.click())
+        return self.header.locator('a[href$="/shop/cart"]')

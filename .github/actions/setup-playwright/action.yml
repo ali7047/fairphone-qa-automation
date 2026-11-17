@@ -1,0 +1,31 @@
+name: Set up Python, uv and Playwright
+description: Installs the locked Python dependencies and one Playwright browser, with caching.
+
+inputs:
+  browser:
+    description: chromium, firefox or webkit
+    default: chromium
+
+runs:
+  using: composite
+  steps:
+    - uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+    - name: Install Python dependencies
+      shell: bash
+      run: uv sync --locked
+    - name: Cache Playwright browsers
+      id: browser-cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ inputs.browser }}-${{ hashFiles('uv.lock') }}
+    - name: Install browser
+      shell: bash
+      run: |
+        if [ "${{ steps.browser-cache.outputs.cache-hit }}" = "true" ]; then
+          uv run python -m playwright install-deps ${{ inputs.browser }}
+        else
+          uv run python -m playwright install --with-deps ${{ inputs.browser }}
+        fi

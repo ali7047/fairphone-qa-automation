@@ -5,8 +5,8 @@ description = "End-to-end and monitoring checks for the Fairphone webshop"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "allure-pytest>=2.16.2",
     "pytest>=9.2.0",
-    "pytest-html>=4.2.0",
     "pytest-playwright>=0.10.0",
     "pytest-rerunfailures>=16.7",
     "pytest-xdist>=3.8.0",
@@ -24,9 +24,32 @@ addopts = [
     "--tracing=retain-on-failure",
     "--screenshot=only-on-failure",
     "--video=retain-on-failure",
+    "--alluredir=allure-results",
 ]
 markers = [
     "smoke: critical customer journeys; candidate pre-deploy gate",
     "detection: weekly site-health check against a capped sample of public pages",
     "quarantine(reason): known-flaky test; runs in a separate, non-blocking job. Give a ticket id as reason",
+    "known_issue: fails today because of a known shop gap; runs in a separate, non-blocking job",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.17.5",
+]
+
+# Lint (ruff check) and formatting (ruff format). Run: uv run python -m ruff check . && uv run python -m ruff format --check .
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle: basic style errors
+    "F",        # pyflakes: unused imports and variables, undefined names
+    "I",        # import order
+    "B",        # bugbear: likely bugs
+    "UP",       # pyupgrade: modern Python syntax
+    "SIM",      # simpler code where it reads better
+    "PT",       # pytest style
 ]

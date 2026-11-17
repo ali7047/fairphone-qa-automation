@@ -66,6 +66,11 @@ class Settings:
     base_url: str
 
     @property
+    def url_prefix(self) -> str:
+        """Prefix for page addresses in the chosen language: "" for English (the shop's default), "/nl" for Dutch."""
+        return "" if self.language.code == "en" else self.language_path
+
+    @property
     def language_path(self) -> str:
         """Path that switches the shop to the chosen language ("/nl"), or "" if none is needed."""
         return self.region.languages[self.language.code]
@@ -83,9 +88,7 @@ def load_settings(
 
     lang = _pick(language_code, ENV_LANGUAGE, "en").lower()
     if lang not in region.languages:
-        raise ValueError(
-            f"The {region.code} shop is tested in: {', '.join(region.languages)}. Got {lang!r}."
-        )
+        raise ValueError(f"The {region.code} shop is tested in: {', '.join(region.languages)}. Got {lang!r}.")
 
     url = _pick(base_url, ENV_BASE_URL, region.base_url).rstrip("/")
     return Settings(region=region, language=LANGUAGES[lang], base_url=url)

@@ -12,6 +12,8 @@ __pycache__/
 # Test output (published as CI artifacts, never committed)
 test-results/
 reports/
+allure-results/
+allure-report/
 playwright-report/
 
 # Local-only documents and notes

@@ -12,7 +12,7 @@ import pytest
 
 from utils.money import parse_price
 
-NBSP = "\u00a0"         # non-breaking space: Odoo can put one between symbol and amount
+NBSP = "\u00a0"  # non-breaking space: Odoo can put one between symbol and amount
 NARROW_NBSP = "\u202f"  # narrow non-breaking space: used as thousands separator in some formats
 
 
@@ -20,12 +20,12 @@ NARROW_NBSP = "\u202f"  # narrow non-breaking space: used as thousands separator
     ("text", "expected"),
     [
         # Formats shown on the live shop
-        ("€599", "599.00"),                # product page
-        ("€ 599", "599.00"),               # configurator
-        ("€ 599.00", "599.00"),            # cart line and total
-        (f"€{NBSP}599.00", "599.00"),      # same, with a non-breaking space
-        ("€27.95", "27.95"),               # accessory card
-        ("$649.99", "649.99"),             # US shop
+        ("€599", "599.00"),  # product page
+        ("€ 599", "599.00"),  # configurator
+        ("€ 599.00", "599.00"),  # cart line and total
+        (f"€{NBSP}599.00", "599.00"),  # same, with a non-breaking space
+        ("€27.95", "27.95"),  # accessory card
+        ("$649.99", "649.99"),  # US shop
         ("Delivery: from €3.95", "3.95"),  # amount inside a sentence
         # Thousands and decimal separators, both styles
         ("€1,198.00", "1198.00"),
@@ -64,5 +64,5 @@ def test_two_prices_in_one_text_are_not_glued_together():
     ["", "Not yet calculated", "€", "free", None, "€1.2345", "€ 12,3456"],
 )
 def test_parse_price_rejects_text_without_a_clear_amount(text):
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="No price found"):
         parse_price(text)
