@@ -1,120 +1,96 @@
 # fairphone-qa-automation
 
-End-to-end and monitoring checks for the Fairphone webshop ([www.fairphone.com](https://www.fairphone.com) and [us.fairphone.com](https://us.fairphone.com)), in Python with Playwright and pytest, run in GitHub Actions.
+End-to-end tests and a weekly site-health check for the Fairphone webshop ([www.fairphone.com](https://www.fairphone.com)),
+built with Playwright for Python and pytest and run in GitHub Actions. For the shop's developers and QA: it runs the critical
+customer journeys on every pull request and shows what broke, with screenshots and traces.
 
-> Work in progress. The US shop journeys are not stable yet; the pipelines run the EU shop.
+Reports: [ali7047.github.io/fairphone-qa-automation](https://ali7047.github.io/fairphone-qa-automation/) ·
+Example runs: [Smoke #5](https://github.com/ali7047/fairphone-qa-automation/actions/runs/44047248782) ·
+[Detection #1](https://github.com/ali7047/fairphone-qa-automation/actions/runs/44052095967)
 
-## Run locally
+## Prerequisites
 
-Needs [uv](https://docs.astral.sh/uv/); it installs the right Python by itself.
+* Python 3.11 or higher (uv installs it if missing)
+* [uv](https://docs.astral.sh/uv/) for dependencies
+* Node.js and Java 17, only to open the Allure report locally
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ali7047/fairphone-qa-automation.git
+   ```
+2. Go to the project directory:
+   ```bash
+   cd fairphone-qa-automation
+   ```
+3. Install the dependencies and the test browser:
+   ```bash
+   uv sync
+   uv run python -m playwright install chromium
+   ```
+
+## Usage
 
 ```bash
-uv sync                                          # install exact versions from uv.lock
-uv run python -m playwright install chromium     # download the test browser (once)
-
-uv run python -m pytest tests/unit               # config, rules and helpers: no browser, about a second
-uv run python -m pytest -m smoke                 # the 4 journeys on the live EU shop, in English
-uv run python -m pytest -m smoke --language nl   # same journeys in Dutch
-uv run python -m pytest -m smoke --headed        # watch the browser
-uv run python -m pytest -m known_issue           # checks that fail today because of a known shop gap
-uv run python -m pytest -m detection -n 2        # site health: this week's 30 pages
-uv run python -m pytest -m detection --pages /stories,/nl/returns   # site health of chosen pages
+uv run python -m pytest tests/unit                         # helpers and rules, no browser (~1 s)
+uv run python -m pytest -m smoke                           # 4 customer journeys on the live EU shop
+uv run python -m pytest -m smoke --language nl --headed    # in Dutch, with the browser visible
+uv run python -m pytest -m smoke --base-url https://<acceptance-url>   # same suite on acceptance
+uv run python -m pytest -m detection -n 2                  # site health of this week's 30 pages
+uv run python -m pytest -m known_issue                     # checks that fail until a known shop gap is fixed
+npx allure-commandline@2 serve allure-results              # open the report
 ```
 
-### Choosing what to test
+A failed test leaves its screenshot, video and Playwright trace in `test-results/` and in the Allure report.
 
-| Option | Environment variable | Default | Values |
-|---|---|---|---|
-| `--region` | `REGION` | `eu` | `eu`, `us` |
-| `--language` | `SHOP_LANGUAGE` | `en` | `en`, `nl` on `eu`; `en` on `us` |
-| `--base-url` | `BASE_URL` | the region's live shop | any address, e.g. an acceptance copy |
-| `--max-pages` | `MAX_PAGES` | `30` | detection: at most 30 |
-| `--pages` | `PAGES` | a sample of the sitemap | detection: comma-separated pages |
-| `--sample-seed` | `SAMPLE_SEED` | this ISO week (e.g. `2026-W47`) | detection: which sample |
+## What is tested
 
-## GitHub Actions
-
-Two workflows, both with a **Run workflow** button (Actions → choose the workflow → Run workflow).
-
-### Smoke tests — on every pull request, and by hand
-
-```
-Lint ─────┐
-          ├──> Smoke journeys (gate) ──┐
-Unit ─────┘                            ├──> Allure report (link on its box)
-          └──> Known issues ───────────┘
-```
-
-| Job | What it does | Can make the run red? |
+| Suite | What it checks | When |
 |---|---|---|
-| Lint | `ruff check` (likely bugs, unused code, import order) and `ruff format --check` | Yes |
-| Unit tests | Config, test data, detection rules and helpers, no browser | Yes |
-| Smoke journeys | The 4 customer journeys, 2 workers, 1 retry. Starts only after Lint **and** Unit pass | Yes — this is the gate |
-| Known issues | Checks for known shop gaps. They fail on purpose; the job stays green with a warning, the failure shows in the report | No |
-| Allure report | One report from both browser jobs, published as a web page | No |
+| **Smoke** (the gate) | 1. Home page and Shop menu · 2. Phone + colour → cart at the configurator price · 3. Quantity +1 (screen and server answer agree), then remove → empty cart · 4. Guest checkout up to the address form, nothing submitted | Every pull request, by hand |
+| **Known issues** | "37" as street + house number is accepted without a warning. Fails until fixed; never turns the run red | With smoke |
+| **Detection** | Up to 30 sitemap pages (robots.txt respected, new sample each week); records HTTP answers ≥ 400 and JavaScript errors | Mondays 06:00 UTC, by hand |
 
-Manual options: shop, language, address (e.g. an acceptance copy), browser, and whether to run known issues.
+**Detection fails** only for what Fairphone must act on: a broken page, a crash in its own scripts, a missing own script or style,
+a 5xx from its server. Third-party errors, missing images and console messages are **reported only**: red must mean "act now".
 
-### Detection (weekly) — every Monday 06:00 UTC, and by hand
+**Next check to add: price consistency.** Compare each product page's price with the price the cart returns. Content editors change
+pages live, outside any release; a stale price misleads customers and is a legal risk that no deploy pipeline catches.
+After that: content completeness (price, VAT note and delivery info present; page really in its language).
 
-```
-Lint ─────┐
-          ├──> Detection (≤30 pages) ──> Allure report (link on its box)
-Unit ─────┘
-```
+## Workflows
 
-- Picks at most **30 public pages** from the sitemap, spread over the sections of the site (shop, stories, legal, …), always including the home page. Pages that robots.txt asks crawlers to skip, and addresses that are actions rather than pages (login, "add …"), are left out.
-- Same week = same pages, so a re-run checks exactly the same pages; next week checks others.
-- Records, for every page: answers of **400 and above** (the page and everything it loads) and **JavaScript errors** (crashes and console errors).
-- **Fails the job** only for problems Fairphone must act on: a broken page, a crash in the shop's own scripts, a missing shop script or style, a shop server error (5xx). Everything else — third-party tools, missing images, console messages — is listed in the report but does not fail the job. Why: [knowledge/decisions.md](knowledge/decisions.md); rules: `utils/site_health.py`.
-- Manual options: shop, number of pages, **specific pages** (e.g. a page a content editor just published), sample seed.
+`smoke.yml` (every pull request) and `detection.yml` (weekly): lint and unit tests run in parallel; browser tests start only when
+both pass; an Allure report is published to GitHub Pages and linked on the report job's box and on the pull request.
+Both have a **Run workflow** button with options (shop, language, address, browser / pages). Smoke takes ~3 min, detection ~5 min.
 
-### Opening a report
+## Decisions
 
-One click from any of these:
-- the **Allure report** box in the run graph: the link under the job name;
-- the pull request: **View deployment**;
-- the top of the run's summary page: **📊 Open the Allure report**, followed by a results table.
+* **Selectors**: role + visible name → label → stable attribute; never styling classes or XPath. Visible texts per language live in `config/languages.py`.
+* **No fixed sleeps**: Playwright waits by itself and `expect()` retries. One exception: detection waits 3 s after load to catch late third-party errors.
+* **Cookie banner** and **"Visiting from …?" prompt**: answered by locator handlers whenever they appear, with the privacy-friendly option.
+* **Flaky tests**: 1 retry in CI, still visible in the report; repeat offenders go to quarantine with a ticket, outside the gate.
+* **Live-shop etiquette**: nothing is ever submitted; at most 2 workers; detection weekly only; bot protection is reported, never bypassed.
+* **Structure**: page objects in `pages/`, test data in `test_data/`, shared setup in `tests/conftest.py`.
 
-Each run keeps its own address, e.g. `https://ali7047.github.io/fairphone-qa-automation/smoke/<run>/` or `/detection/<run>/`.
-`/smoke/latest/` and `/detection/latest/` open the newest; [the index page](https://ali7047.github.io/fairphone-qa-automation/) lists all runs; the last 20 per workflow are kept.
-How: the shared report job (`.github/workflows/allure-report.yml`) pushes the report to the `gh-pages` branch (one fresh commit each time, so old reports don't pile up in git history) and GitHub Pages serves it. It turns Pages on by itself on its first run.
+More: [knowledge/decisions.md](knowledge/decisions.md) · live-shop findings: [knowledge/site-observations.md](knowledge/site-observations.md)
 
-### Before pushing
+## Limitations and next steps
 
-```bash
-uv run python -m ruff check . && uv run python -m ruff format --check .   # lint
-uv run python -m ruff format .                                             # fix formatting
-uv run python -m pytest tests/unit                                         # unit tests
-```
+* **Bot protection**: no block, locally or from GitHub's US runners. Those runners do get a US cookie dialog and a "Visiting from the US?"
+  prompt that a run from the Netherlands never sees. In Fairphone's setup: allowlist the test runners and run EU checks from an EU region.
+* **Not tested**: anything after the address step (payment, iDEAL, emails), which needs acceptance with payment in test mode.
+  The US journeys are not stable yet; German and French texts are not added.
+* **Left out on purpose**: visual comparison (content changes weekly), performance tests (need a target, never on live), more journeys (four solid ones first).
+* **With another day**: checkout and order emails on acceptance; the price-consistency check; WebKit and mobile nightly; quarantine wired into CI.
 
-## Test report (Allure)
+## AI assistance
 
-Every run writes results to `allure-results/`. To open them locally (needs Node.js and Java):
+Claude Code (an AI coding assistant) was used to explore the site, write and refactor code and tests, and draft documents;
+every change was reviewed.
 
-```bash
-npx allure-commandline@2 serve allure-results
-```
+## Contributing
 
-Each test shows its Data / Steps / Expected description, every step with a screenshot,
-the test data, the shop's server answers, and "expected vs actual" for each check.
-A failed test also gets its screenshot, video and Playwright trace, which replays every step:
-
-```bash
-uv run python -m playwright show-trace test-results/<test-name>/trace.zip
-```
-
-## Project layout
-
-```
-config/          which shop, language and address; visible texts per language
-pages/           page objects: where to click, kept out of the tests
-test_data/       what the journeys buy and where they go, per shop and language
-utils/           price reading, sitemap sampling, site-health rules, report evidence
-tests/unit/      tests for config, test data, rules and helpers (no browser)
-tests/smoke/     the 4 customer journeys on the real shop
-tests/known_issues/  checks that fail until a known shop gap is fixed
-tests/detection/ the site-health check of sampled pages
-.github/         workflows, shared report job, report publishing scripts
-knowledge/       how the shop works and how tests are written here
-```
+Open a pull request; lint, unit tests and smoke must pass. How to add a test: [knowledge/automation-standards.md](knowledge/automation-standards.md).
+Commit messages start with `NEW:`, `UPD:` or `FIX:`.

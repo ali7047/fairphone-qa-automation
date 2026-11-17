@@ -65,8 +65,8 @@ A run from the Netherlands and a run on GitHub's US machines see different butto
 - US product page: 404 for a navigation thumbnail (`/shop/category/web/image/…fairbuds-2-navigation-thumbnail…`).
 - **For tests:** the detection job fails only on Fairphone's own errors; third-party messages are reported.
 
-## First detection run (30 pages, EU shop)
-All 30 pages loaded (status below 400) with no failing finding. Reported only:
+## First detection runs (30 pages each, EU shop)
+Local run and the first GitHub run (detection #1, US runners): all 30 pages loaded (status below 400) with no failing finding. Reported only:
 
 | Seen on | Message | Source | Why it is only reported |
 |---|---|---|---|
@@ -74,6 +74,8 @@ All 30 pages loaded (status below 400) with no failing finding. Reported only:
 | every page | "requestStorageAccess: Permission denied" | reCAPTCHA (Google) | Third party |
 | `/fr/keep-club-fairphone` | "Cannot read properties of null (reading 'appendChild')", an uncaught crash | Yotpo loyalty widget | Third party; the stack trace shows Yotpo's script |
 | `/fr/keep-club-fairphone` | "No customer found", "No customer email found" | `sandbox-franz.fairphone.com/…/branch/release-test/dist/yotpo-lib.iife.js` | See below |
+
+From GitHub's US runners two more appear on every page: a Sentry script (`browser.sentry-cdn.com`) logs the "unload" warning, and a sandboxed `about:blank` frame blocks a script. Both third party, both reported only.
 
 **Worth raising:** the live Keep Club page loads a script from a **sandbox address on a branch named `release-test`**
 (`sandbox-franz.fairphone.com`). A test build serving production customers can change or break at any time without a release.
