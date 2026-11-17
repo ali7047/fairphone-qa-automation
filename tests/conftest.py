@@ -33,6 +33,13 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         default=None,
         help="Shop language: en or nl on eu, en on us (env SHOP_LANGUAGE, default en).",
     )
+    # Detection job (tests/detection): which pages to check.
+    detection = parser.getgroup("detection", "Detection job (tests/detection)")
+    detection.addoption(
+        "--max-pages", type=int, default=None, help="At most this many pages, capped at 30 (env MAX_PAGES)."
+    )
+    detection.addoption("--pages", default=None, help="Check these addresses instead of a sample (env PAGES).")
+    detection.addoption("--sample-seed", default=None, help="Which sample (env SAMPLE_SEED); default: ISO week.")
 
 
 @pytest.fixture(scope="session")
