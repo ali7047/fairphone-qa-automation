@@ -42,11 +42,6 @@ uv run python -m pytest -m known_issue                     # checks that fail un
 npx allure-commandline@2 serve allure-results              # open the report
 ```
 
-Expected output:
-```
-....                                                                     [100%]
-4 passed in 137.88s (0:02:17)
-```
 A failed test leaves its screenshot, video and Playwright trace in `test-results/` and in the Allure report.
 
 ## What is tested
@@ -92,10 +87,8 @@ More: [knowledge/decisions.md](knowledge/decisions.md) · live-shop findings: [k
 
 ## AI assistance
 
-The strategy, decisions, severity rules and go/no-go approach are mine. I used Claude Code (an AI coding assistant) to explore the site,
-write and refactor code and tests, and draft documents from my points; I reviewed every change and can explain each line.
-New to me: Playwright for Python (locators, auto-wait, locator handlers, tracing), Allure on GitHub Pages, uv and ruff.
-Time spent: about 8 hours.
+Claude Code (an AI coding assistant) was used to explore the site, write and refactor code and tests, and draft documents;
+every change was reviewed.
 
 ## Contributing
 
