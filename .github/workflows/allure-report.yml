@@ -1,0 +1,118 @@
+name: Allure report (shared)
+
+# Builds one Allure report from the results the calling workflow uploaded,
+# publishes it to GitHub Pages and puts the link where people look:
+#   - on this job's box in the run graph (environment URL),
+#   - on the pull request ("View deployment"),
+#   - at the top of the run's summary page, with a results table.
+# Called by smoke.yml and detection.yml; each publishes under its own folder.
+
+on:
+  workflow_call:
+    inputs:
+      key:
+        description: "Folder on the report site: smoke or detection"
+        type: string
+        required: true
+      results-pattern:
+        description: "Artifact name pattern holding the Allure results, e.g. allure-results-*"
+        type: string
+        required: true
+      known-issues-note:
+        description: "Explain known issues under the results table"
+        type: boolean
+        default: false
+
+jobs:
+  report:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # The environment's URL is shown as a clickable link on this job's box in the
+    # run graph and on the pull request ("View deployment"): one click to the report.
+    environment:
+      name: allure-report-${{ inputs.key }}
+      url: ${{ steps.publish.outputs.url }}
+    permissions:
+      contents: write     # push the report to the gh-pages branch
+      pages: write        # start a GitHub Pages build
+      deployments: write  # show the report link on the job box and the pull request
+    env:
+      KEY: ${{ inputs.key }}
+      WORKFLOW_NAME: ${{ github.workflow }}
+      RUN_NUMBER: ${{ github.run_number }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      BRANCH: ${{ github.head_ref || github.ref_name }}
+      COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+      REPORT_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ inputs.key }}/${{ github.run_number }}/
+      KNOWN_ISSUES_NOTE: ${{ inputs.known-issues-note }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ inputs.results-pattern }}
+          path: allure-results
+          merge-multiple: true
+      - name: Add run details to the report (executor, environment)
+        run: python3 .github/scripts/report_site.py metadata allure-results
+      - name: Bring back history (trends across runs)
+        # Allure draws pass/fail trends when the previous run's history is present.
+        # The publish step keeps a copy of it at <site>/<key>/latest/history/.
+        continue-on-error: true
+        run: |
+          mkdir -p allure-results/history
+          for f in history.json history-trend.json duration-trend.json categories-trend.json retry-trend.json; do
+            curl -fsSL "$PAGES_URL/$KEY/latest/history/$f" -o "allure-results/history/$f" || rm -f "allure-results/history/$f"
+          done
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Build the report
+        run: npx --yes allure-commandline@2 generate allure-results --clean -o allure-report
+      - name: Upload the report (artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-${{ inputs.key }}
+          path: allure-report
+          retention-days: 14
+      - name: Publish the report to GitHub Pages
+        id: publish
+        continue-on-error: true
+        env:
+          REMOTE_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+        run: bash .github/scripts/publish_report.sh allure-report "$KEY" "$RUN_NUMBER"
+      - name: Turn on GitHub Pages (first run only)
+        if: steps.publish.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1; then
+            gh api -X POST "repos/${{ github.repository }}/pages" \
+              -f "source[branch]=gh-pages" -f "source[path]=/" >/dev/null \
+              && echo "GitHub Pages turned on (gh-pages branch)."
+          fi
+      - name: Wait until the report is online
+        id: live
+        if: steps.publish.outcome == 'success'
+        continue-on-error: true
+        run: |
+          for i in $(seq 1 24); do
+            if curl -fsS -o /dev/null "$REPORT_URL"; then echo "live=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+            sleep 10
+          done
+          echo "live=false" >> "$GITHUB_OUTPUT"
+      - name: Summary on the run page (with the report link)
+        if: always()
+        env:
+          PUBLISHED: ${{ steps.publish.outcome == 'success' }}
+          REPORT_LIVE: ${{ steps.live.outputs.live }}
+        run: |
+          python3 .github/scripts/report_site.py summary allure-results >> "$GITHUB_STEP_SUMMARY"
+          if [ "$PUBLISHED" = "true" ]; then
+            echo "::notice title=Allure report::$REPORT_URL"
+          fi

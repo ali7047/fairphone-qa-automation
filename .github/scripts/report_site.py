@@ -79,14 +79,18 @@ def print_summary(results: Path) -> None:
         labels = {label["name"]: label["value"] for label in result.get("labels", [])}
         message = ((result.get("statusDetails") or {}).get("message") or "").strip().splitlines()
         rows.append((labels.get("feature", ""), result["name"], result["status"], message[0][:140] if message else ""))
+    counts = {status: sum(1 for row in rows if row[2] == status) for status in ICONS}
+    print(" · ".join(f"{ICONS[s]} {n} {s}" for s, n in counts.items() if n) + "\n")
     print("| Suite | Test | Result | Why it failed |")
     print("|---|---|---|---|")
     for suite, name, status, why in sorted(rows):
         print(f"| {suite} | `{name}` | {ICONS.get(status, '')} {status} | {why.replace('|', '/')} |")
-    print(
-        "\n*Known issues* are expected to fail until the shop fixes them; they never block a pull request."
-        "\nThe same report is also attached to this run as the **allure-report** artifact."
-    )
+    if env("KNOWN_ISSUES_NOTE") == "true":
+        print(
+            "\n*Known issues* fail on purpose until the shop fixes them. Their job stays green so the run's"
+            " colour only shows new problems."
+        )
+    print(f"\nThe same report is also attached to this run as the **allure-report-{env('KEY')}** artifact.")
 
 
 # --- index: the page at the root of the GitHub Pages site --------------------------
