@@ -83,4 +83,8 @@ uv run python -m playwright codegen https://www.fairphone.com/en/
 - Quarantine is temporary: fix or delete within two sprints.
 
 ## Commits and branches
-- One branch per change, opened as a pull request. Commit messages: `NEW: <summary>`, body says *why*.
+- One branch per change, opened as a pull request.
+- Commit messages start with a type, then a short summary; the body says *why*:
+  - `NEW:` a new feature, test or file — `NEW: weekly detection job`
+  - `UPD:` a change or improvement to something that exists — `UPD: run detection on Mondays`
+  - `FIX:` a bug fix — `FIX: handle the US cookie dialog`

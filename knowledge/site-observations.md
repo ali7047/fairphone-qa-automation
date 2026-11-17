@@ -65,6 +65,20 @@ A run from the Netherlands and a run on GitHub's US machines see different butto
 - US product page: 404 for a navigation thumbnail (`/shop/category/web/image/…fairbuds-2-navigation-thumbnail…`).
 - **For tests:** the detection job fails only on Fairphone's own errors; third-party messages are reported.
 
+## First detection run (30 pages, EU shop)
+All 30 pages loaded (status below 400) with no failing finding. Reported only:
+
+| Seen on | Message | Source | Why it is only reported |
+|---|---|---|---|
+| every page | "Permissions policy violation: unload is not allowed in this document" | the shop's own Odoo script bundle | A browser warning about an old API, not a crash |
+| every page | "requestStorageAccess: Permission denied" | reCAPTCHA (Google) | Third party |
+| `/fr/keep-club-fairphone` | "Cannot read properties of null (reading 'appendChild')", an uncaught crash | Yotpo loyalty widget | Third party; the stack trace shows Yotpo's script |
+| `/fr/keep-club-fairphone` | "No customer found", "No customer email found" | `sandbox-franz.fairphone.com/…/branch/release-test/dist/yotpo-lib.iife.js` | See below |
+
+**Worth raising:** the live Keep Club page loads a script from a **sandbox address on a branch named `release-test`**
+(`sandbox-franz.fairphone.com`). A test build serving production customers can change or break at any time without a release.
+It is Fairphone's own domain, so not a third party; but it logs messages rather than crashing, so the job reports it rather than failing.
+
 ## EU home page layout
 - The hero heading is covered by the hero buttons and the sticky header, so pointer actions on it fail. Not a bug; tests don't hover or click it.
 
