@@ -1,0 +1,26 @@
+[
+  {
+    "kind": "console error",
+    "url": "about:blank",
+    "detail": "Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    "first_party": false,
+    "verdict": "report",
+    "reason": "Third-party script"
+  },
+  {
+    "kind": "console error",
+    "url": "https://browser.sentry-cdn.com/10.73.0/bundle.tracing.min.js",
+    "detail": "Permissions policy violation: unload is not allowed in this document.",
+    "first_party": false,
+    "verdict": "report",
+    "reason": "Third-party script"
+  },
+  {
+    "kind": "console error",
+    "url": "https://www.recaptcha.net/recaptcha/api2/anchor?ar=1&k=6Ld1DCMpAAAAANxXJa5Cvb3f6JiapyGDuUhrg1Kl&co=aHR0cHM6Ly93d3cuZmFpcnBob25lLmNvbTo0NDM.&hl=en&v=4i3aN5wAweL7i3ADI7BSX4B-&size=invisible&anchor-ms=20000&execute-ms=30000&ovv=CADq00gF&cb=551c6nt9lg58",
+    "detail": "requestStorageAccess: Permission denied.",
+    "first_party": false,
+    "verdict": "report",
+    "reason": "Third-party script"
+  }
+]

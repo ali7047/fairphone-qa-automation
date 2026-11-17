@@ -1,0 +1,301 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6873","/fr/fairbuds-2","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","5459","/nl/newsletter-opt-in","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6659","/nl/the-fairphone-gen-6-plus-e-operating-system","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6329","/de/returns","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","5696","/fr/legal/return-policy","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","5409","/de/contact","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","5286","/nl/continue-your-journey","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6859","/de/the-new-fairphone","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","7556","/fr/keep-club-fairphone","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6420","/de/fairphone-e-operating-system","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6767","/nl/about-us","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6031","/de/impact-report","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","5367","/de/accessories","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6393","/de/-1","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","5973","/fr/repairs","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","5089","/fairphone-for-business-resellers/country/sweden-196","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6541","/nl/shop/fairbuds-xl-speaker-cable-66","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6580","/fr/bootloader-unlocking-code-for-fairphone","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6883","/nl","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6091","/de/press","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","5478","/de/bcorp-certification-notice","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","5673","/fr/recycle","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","5830","/de/thank-you-for-optin","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6552","/de/the-one-that-lasts","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6185","/nl/keep-club-fairphone-referral","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6654","/fr/warranty","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6665","/de/fairbuds-xl","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","7159","/de/team","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","5292","/fr/speak-up","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""
+"
+    Data:     one page from this week's sample of the sitemap (max 30 pages, robots.txt respected).
+    Steps:    1. Open the page in a fresh browser and record every answer of 400 or above,
+                 every uncaught script error and every console error while it loads.
+              2. Sort each finding: FAIL (the shop must act) or REPORT (shown only).
+    Expected: no FAIL findings: the page answers below 400, the shop's own scripts don't
+              crash, its own scripts and styles load, its server answers no 5xx.
+              REPORT findings (third-party tools, missing images, console messages) are
+              listed in the report but don't fail the job.
+    ","6003","/switch-to-fair","tests.detection","2026-11-17","passed","2026-11-17","","test_site_health","",""

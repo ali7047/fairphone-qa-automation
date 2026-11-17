@@ -1,0 +1,54 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"
+    Data:     phone from test_data/products.py; unit price read from the cart while the test runs.
+    Steps:    1. Add the phone to the cart (as in journey 2).
+              2. Click ""Add one""; keep the shop's server answer (API) and read the screen (GUI).
+              3. Click ""Remove from cart"" and confirm.
+    Expected: after ""Add one"": quantity 2 and total = 2 x unit price, the same on screen
+              (quantity field, header count, total) and in the server answer.
+              After removing: the server reports 0 items; the screen shows the empty-cart
+              message and the header cart icon shows 0.
+    ","26676","test_quantity_change_updates_totals_and_removing_the_line_empties_the_cart[chromium]","tests.smoke","2026-11-17","passed","2026-11-17","","test_03_cart_quantity_and_remove","",""
+"
+    Data:     phone, colour and names from test_data/products.py
+              (EU English: The Fairphone (Gen. 6), Forest Green).
+              The price is read from the configurator while the test runs.
+    Steps:    1. Open the phone's product page and follow its buy link to the configurator.
+              2. Choose the colour (US: also ""set up connectivity later"").
+              3. Read the configurator price, click Add to cart (cart offers are skipped).
+              4. Read the cart line, quantity, header count and total.
+    Expected: the cart has one line with the product name and chosen colour, quantity 1;
+              line price, cart total and configurator price are equal; header count is 1.
+    ","23115","test_phone_with_chosen_colour_is_added_to_cart_at_configurator_price[chromium]","tests.smoke","2026-11-17","passed","2026-11-17","","test_02_add_to_cart","",""
+"
+    Data:     phone from test_data/products.py; street + house number = ""37"" (no street name).
+              Nothing else is typed; no personal data.
+    Steps:    1. Add the phone to the cart; check iDEAL is among the payment methods.
+              2. Go to checkout, continue as guest, reach the address form.
+              3. Block every form submit, then type ""37"" into ""Street address + house number""
+                 and leave the field (Tab). Do not press Next.
+    Expected: the shop warns that the street name is missing (field marked invalid or an
+              error message), as it would for any delivery address without a street.
+    Today:    FAILS - no warning; ""37"" is accepted. A customer can get to payment with an
+              address that cannot be delivered (manual correction by customer service,
+              Medium severity). See knowledge/site-observations.md.
+    ","28140","test_address_step_warns_when_street_name_is_missing[chromium]","tests.known_issues","2026-11-17","failed","2026-11-17","","test_address_validation","",""
+"
+    Data:     phone from test_data/products.py. No personal data: nothing is typed.
+    Steps:    1. Add the phone to the cart (as in journey 2).
+              2. Click ""Go to checkout"", then ""Checkout as guest"".
+              3. Stop. Do not type into the form, do not press ""Next step"".
+    Expected: the address page (/shop/address) opens with the headings ""Checkout"" and
+              ""Address"" and empty First name / Last name fields; the order summary still
+              shows the phone.
+    ","3760","test_guest_checkout_reaches_the_address_form[chromium]","","2026-11-17","passed","2026-11-17","","","",""
+"
+    Data:     shop, language and address from the settings (default: EU shop, English);
+              the Shop-menu link to follow from test_data/products.py (EU: ""Smartphones"").
+    Steps:    1. Open the home page in a fresh browser (the cookie dialog is declined).
+              2. Read status, page language, header menu, cart icon and prices.
+              3. Open the Shop menu and follow the link.
+    Expected: status below 400; page in the chosen language; cookie dialog gone;
+              ""About"" menu link in that language; cart icon shows 0; prices in the
+              shop's currency; the link opens its page with the expected heading.
+    ","10906","test_home_page_loads_and_shop_menu_opens_a_product_page[chromium]","tests.smoke","2026-11-17","passed","2026-11-17","","test_01_home_navigation","",""
