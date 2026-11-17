@@ -61,15 +61,30 @@ class ConfiguratorPage(BasePage):
         After a colour click the page asks the server which product matches
         and only then switches the product it will add. Adding to cart before
         that answer adds the previous colour; see knowledge/site-observations.md.
+
+        `expect(...).to_be_checked()` checks the result instead of assuming the
+        click landed. Seen in CI: a pop-up ("Visiting from the US?") appeared at
+        the moment of the click; the handler closed it, but that click was lost.
+        So if the colour is not selected after the shop answered, click once more.
         """
         colour = self.option(choice.colour_group, choice.colour)
-        with self.page.expect_response(lambda r: "/configure/" in r.url and r.request.method == "POST"):
-            colour.click()
-        expect(colour).to_be_checked()
+        self._select(colour, wait_for_shop=True)
         if choice.extra_choice_group:
-            extra = self.option(choice.extra_choice_group, choice.extra_choice)
-            extra.click()
-            expect(extra).to_be_checked()
+            self._select(self.option(choice.extra_choice_group, choice.extra_choice))
+
+    def _select(self, option: Locator, wait_for_shop: bool = False, attempts: int = 2) -> None:
+        for attempt in range(1, attempts + 1):
+            if wait_for_shop:
+                with self.page.expect_response(lambda r: "/configure/" in r.url and r.request.method == "POST"):
+                    option.click()
+            else:
+                option.click()
+            try:
+                expect(option).to_be_checked(timeout=3_000)
+                return
+            except AssertionError:
+                if attempt == attempts:
+                    raise
 
     def add_to_cart(self) -> None:
         """Add to cart, then skip the offers the cart shows for a new phone."""
